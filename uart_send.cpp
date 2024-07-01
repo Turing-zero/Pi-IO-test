@@ -24,7 +24,7 @@
 /* UART port */
 #define UART_PORT 0
 
-const char* dev_path = "/dev/ttyAMA1";
+const char* dev_path = "/dev/ttyAMA0";
 
 volatile sig_atomic_t flag = 1;
 
@@ -47,48 +47,33 @@ main(void)
     // device. If not use raw mode where std::string is taken as a constructor
     // parameter
     mraa::Uart* uart, *temp;
-    // try {
-    //     uart = new mraa::Uart(UART_PORT);
-    //     temp = uart;
-    // } catch (std::exception& e) {
-    //     std::cerr << e.what() << ", likely invalid platform config" << std::endl;
-    // }
-
     try {
         uart = new mraa::Uart(dev_path);
     } catch (std::exception& e) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
     }
-
-    if (uart->setBaudRate(115200) != mraa::SUCCESS) {
+    if (uart->setBaudRate(4000000) != mraa::SUCCESS) {
         std::cerr << "Error setting parity on UART" << std::endl;
     }
-
     if (uart->setMode(8, mraa::UART_PARITY_NONE, 1) != mraa::SUCCESS) {
         std::cerr << "Error setting parity on UART" << std::endl;
     }
-
     if (uart->setFlowcontrol(false, false) != mraa::SUCCESS) {
         std::cerr << "Error setting flow control UART" << std::endl;
     }
 
+    int index = 0;
     while (flag) {
         /* send data through uart */
-        // uart->writeStr("Hello Mraa!\n");
-        char s[256] = "";
-        char* s_ptr = s;
-        while(uart->dataAvailable(0)) {
-            uart->read(s_ptr, 1);
-            s_ptr++;
-            // std::cout << "data available: " << s_ptr[0] << std::endl;
-        }
-        if(s != s_ptr) {
-            std::cout << "data available: " << s << std::endl;
-        }
-
-        // sleep(1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        char tx_buf[5] = {0xff};
+        tx_buf[0] = 0xab;
+        tx_buf[1] = index & 0xff;
+        tx_buf[2] = (index >> 8) & 0xff;
+        index++;
+        uart->writeStr(tx_buf);
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     //! [Interesting]
 
