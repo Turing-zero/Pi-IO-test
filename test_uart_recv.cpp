@@ -10,12 +10,12 @@
  */
 
 /* standard headers */
+#include <chrono>
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <chrono>
 #include <thread>
+#include <unistd.h>
 
 /* mraa headers */
 #include "mraa/common.hpp"
@@ -24,33 +24,29 @@
 /* UART port */
 #define UART_PORT 0
 
-const char* dev_path = "/dev/ttyAMA1";
+const char *dev_path = "/dev/ttyAMA1";
 
 volatile sig_atomic_t flag = 1;
 
-void
-sig_handler(int signum)
-{
+void sig_handler(int signum) {
     if (signum == SIGINT) {
         std::cout << "Exiting..." << std::endl;
         flag = 0;
     }
 }
 
-int
-main(void)
-{
+int main(void) {
     signal(SIGINT, sig_handler);
 
     //! [Interesting]
     // If you have a valid platform configuration use numbers to represent uart
     // device. If not use raw mode where std::string is taken as a constructor
     // parameter
-    mraa::Uart* uart, *temp;
+    mraa::Uart *uart, *temp;
 
     try {
         uart = new mraa::Uart(dev_path);
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
     }
@@ -77,13 +73,13 @@ main(void)
         /* send data through uart */
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
-        char* s_ptr = s;
-        while(uart->dataAvailable(0)) {
+        char *s_ptr = s;
+        while (uart->dataAvailable(0)) {
             uart->read(s_ptr, 1);
             s_ptr++;
             // std::cout << "data available: " << s_ptr[0] << std::endl;
         }
-        if(s != s_ptr && s[0] == 0xab) {
+        if (s != s_ptr && s[0] == 0xab) {
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);
             } else {
@@ -96,7 +92,7 @@ main(void)
                 std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
             }
         }
-        
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     //! [Interesting]
