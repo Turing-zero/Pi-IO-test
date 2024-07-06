@@ -21,8 +21,11 @@
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
 
+#include "io.h"
+
 /* UART port */
 #define UART_PORT 0
+#define UART_PACK_LEN 25
 
 const char *dev_path = "/dev/ttyAMA0";
 
@@ -38,32 +41,17 @@ void sig_handler(int signum) {
 int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
+    struct uart_params _p;
     // uart param
-    int baudrate = 115200;
     int send_delay = 10;
     if (argc > 1) {
-        baudrate = std::stoi(argv[1]);
+        _p.baudrate = std::stoi(argv[1]);
         send_delay = std::stoi(argv[2]);
-        std::cout << "baudrate: " << baudrate << std::endl;
+        std::cout << "baudrate: " << _p.baudrate << std::endl;
     }
 
     // init uart
-    mraa::Uart *uart, *temp;
-    try {
-        uart = new mraa::Uart(dev_path);
-    } catch (std::exception &e) {
-        std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
-        std::terminate();
-    }
-    if (uart->setBaudRate(baudrate) != mraa::SUCCESS) {
-        std::cerr << "Error setting parity on UART" << std::endl;
-    }
-    if (uart->setMode(8, mraa::UART_PARITY_NONE, 1) != mraa::SUCCESS) {
-        std::cerr << "Error setting parity on UART" << std::endl;
-    }
-    if (uart->setFlowcontrol(false, false) != mraa::SUCCESS) {
-        std::cerr << "Error setting flow control UART" << std::endl;
-    }
+    mraa::Uart *uart = uart_init(dev_path, _p);
 
     int index = 0;
     float pingpong_delay_sum = 0; // ms
@@ -75,12 +63,15 @@ int main(int argc, char **argv) {
         int64_t timestamp_ping = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         if (timestamp_ping - timestamp_start > 1000000 * 60) {
             flag = false;
+            pingpong_delay_ave = pingpong_delay_sum / pingpong_delay_count;
+            std::cout << "pingpong delay: " << pingpong_delay_ave << "ms" << std::endl;
             std::cout << "test for 1min: finished." << std::endl;
+            break;
         }
 
         // std::cout << timestamp_ping << std::endl;
         /* send data through uart */
-        char tx_buf[25] = {0xff};
+        char tx_buf[UART_PACK_LEN] = {0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
         tx_buf[2] = (index >> 8) & 0xff;
@@ -92,18 +83,16 @@ int main(int argc, char **argv) {
         uart->writeStr(tx_buf);
 
         // Pong
-        char s[25] = "";
-        char *s_ptr = s;
+        char s[UART_PACK_LEN] = "";
         int wait_count = 0;
+        int recv_len = 0;
         while (wait_count < 1000) {
             if (uart->dataAvailable(0) == false) {
                 std::this_thread::sleep_for(std::chrono::microseconds(100));
                 wait_count++;
             } else {
-                while (uart->dataAvailable(0)) {
-                    uart->read(s_ptr, 1);
-                    s_ptr++;
-                }
+                recv_len = uart_read(uart, s, UART_PACK_LEN);
+                // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
                 break;
             }
         }
@@ -112,7 +101,7 @@ int main(int argc, char **argv) {
         }
 
         // Check ping-pong
-        if (s != s_ptr && s[0] == 0xbc) {
+        if (s[0] == 0xbc) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
             int index_pong = s[1] | (s[2] << 8);
             ;
@@ -136,7 +125,6 @@ int main(int argc, char **argv) {
     //! [Interesting]
 
     delete uart;
-    delete temp;
 
     return EXIT_SUCCESS;
 }
