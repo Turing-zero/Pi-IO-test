@@ -20,11 +20,12 @@
 /* mraa headers */
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
+#include "mraa/gpio.hpp"
 
 /* UART port */
 #define UART_PORT 0
 
-const char *dev_path = "/dev/ttyAMA0";
+const char *dev_path = "/dev/ttyAMA4";
 
 volatile sig_atomic_t flag = 1;
 
@@ -51,8 +52,11 @@ int main(int argc, char **argv) {
     // device. If not use raw mode where std::string is taken as a constructor
     // parameter
     mraa::Uart *uart, *temp;
+    mraa::Gpio *gpio;
     try {
         uart = new mraa::Uart(dev_path);
+        gpio = new mraa::Gpio(40);
+        gpio->dir(mraa::DIR_OUT);
     } catch (std::exception &e) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
@@ -70,20 +74,23 @@ int main(int argc, char **argv) {
     int index = 0;
     while (flag) {
         /* send data through uart */
-        char tx_buf[5] = {0xff};
-        tx_buf[0] = 0xab;
-        tx_buf[1] = index & 0xff;
-        tx_buf[2] = (index >> 8) & 0xff;
+        gpio->write(1);
+        char tx_buf[5] = "text";
+        // tx_buf[0] = 0xff;
+        // tx_buf[1] = index & 0xff;
+        // tx_buf[2] = (index >> 8) & 0xff;
 
         index++;
-        uart->writeStr(tx_buf);
 
+        uart->writeStr(tx_buf);
         std::this_thread::sleep_for(std::chrono::milliseconds(send_delay));
+        gpio->write(0);
     }
     //! [Interesting]
 
     delete uart;
     delete temp;
+    delete gpio;
 
     return EXIT_SUCCESS;
 }

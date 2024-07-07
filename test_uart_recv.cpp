@@ -20,11 +20,12 @@
 /* mraa headers */
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
+#include "mraa/gpio.hpp"
 
 /* UART port */
 #define UART_PORT 0
 
-const char *dev_path = "/dev/ttyAMA1";
+const char *dev_path = "/dev/ttyAMA2";
 
 volatile sig_atomic_t flag = 1;
 
@@ -43,14 +44,18 @@ int main(void) {
     // device. If not use raw mode where std::string is taken as a constructor
     // parameter
     mraa::Uart *uart, *temp;
+    mraa::Gpio *gpio;
 
     try {
         uart = new mraa::Uart(dev_path);
+        gpio = new mraa::Gpio(36);
+        gpio->dir(mraa::DIR_OUT);
+        gpio->write(0);
     } catch (std::exception &e) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
     }
-    if (uart->setBaudRate(4000000) != mraa::SUCCESS) {
+    if (uart->setBaudRate(115200) != mraa::SUCCESS) {
         std::cerr << "Error setting parity on UART" << std::endl;
     }
     if (uart->setMode(8, mraa::UART_PARITY_NONE, 1) != mraa::SUCCESS) {
@@ -74,11 +79,15 @@ int main(void) {
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
         char *s_ptr = s;
+        int len = 0;
         while (uart->dataAvailable(0)) {
             uart->read(s_ptr, 1);
             s_ptr++;
             // std::cout << "data available: " << s_ptr[0] << std::endl;
+            len++;
         }
+        if (s != s_ptr)
+             std::cout << "str: " << s << std::endl;
         if (s != s_ptr && s[0] == 0xab) {
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);
@@ -99,6 +108,7 @@ int main(void) {
 
     delete uart;
     delete temp;
+    delete gpio;
 
     return EXIT_SUCCESS;
 }

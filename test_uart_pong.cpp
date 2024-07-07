@@ -22,11 +22,13 @@
 /* mraa headers */
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
+#include "mraa/gpio.hpp"
 
 /* UART port */
 #define UART_PORT 0
+#define GPIO_PORT 40
 
-const char *dev_path = "/dev/ttyAMA1";
+const char *dev_path = "/dev/ttyAMA4";
 
 volatile sig_atomic_t flag = 1;
 
@@ -51,9 +53,12 @@ int main(int argc, char **argv) {
     // device. If not use raw mode where std::string is taken as a constructor
     // parameter
     mraa::Uart *uart, *temp;
+    mraa::Gpio *gpio;
 
     try {
         uart = new mraa::Uart(dev_path);
+        gpio = new mraa::Gpio(GPIO_PORT);
+        gpio->dir(mraa::DIR_OUT);
     } catch (std::exception &e) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
@@ -82,12 +87,21 @@ int main(int argc, char **argv) {
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
         char *s_ptr = s;
+        int len = 0;
+        gpio->write(0);
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
         while (uart->dataAvailable(0)) {
             uart->read(s_ptr, 1);
             s_ptr++;
-            // std::cout << "data available: " << s_ptr[0] << std::endl;
+            len++;
+            // std::cout << "data available: " << int(s_ptr[0]) << std::endl;
+            // std::cout << len << std::endl;
         }
+        // if(s!=s_ptr)
+        //     std::cout << "str: " << int(s[0]) << std::endl;
         if (s != s_ptr && s[0] == 0xab) {
+            gpio->write(1);
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
             char tx_buf[3] = {0xff};
             tx_buf[0] = 0xbc;
             tx_buf[1] = s[1];
@@ -105,14 +119,16 @@ int main(int argc, char **argv) {
             if (comm_status.rx_count % 100 == 0) {
                 std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
             }
+            std::cout << "recv str: " << int(s[0]) << std::endl;
         }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10-2));
     }
     //! [Interesting]
 
     delete uart;
     delete temp;
+    delete gpio;
 
     return EXIT_SUCCESS;
 }
