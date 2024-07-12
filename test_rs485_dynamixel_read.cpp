@@ -27,9 +27,9 @@
 #define GPIO_PORT 36
 
 /*UART DELAY*/
-// #define UART_DELAY 1 //us
+#define UART_DELAY 100 //us
 
-const char *dev_path = "/dev/ttyAMA2";
+const char *dev_path = "/dev/ttyAMA3";
 
 volatile sig_atomic_t flag = 1;
 
@@ -44,16 +44,13 @@ int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
     // uart param
-    int baudrate = 115200;
+    int baudrate = 1000000;
     int send_delay = 10;
-    int UART_DELAY = 400;
     if (argc > 1) {
         baudrate = std::stoi(argv[1]);
         send_delay = std::stoi(argv[2]);
-        UART_DELAY = std::stoi(argv[3]);
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "send_delay: " << send_delay << std::endl;
-        std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
 
     // init uart
@@ -94,11 +91,10 @@ int main(int argc, char **argv) {
         /* send data through uart */
         gpio->write(1);
         // std::this_thread::sleep_for(std::chrono::microseconds(1));
-        char tx_buf[25] = {0xff};
+        char tx_buf[3] = {0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
-        tx_buf[2] = 0xff;//(index >> 8) & 0xff;
-        for(int i=3;i<15;++i)tx_buf[i]=0xA5;
+        tx_buf[2] = (index >> 8) & 0xff;
 
         // tx_buf[3] = timestamp_ping & 0xff;
         // tx_buf[4] = (timestamp_ping >> 8) & 0xff;
@@ -109,7 +105,7 @@ int main(int argc, char **argv) {
         gpio->write(0);
         // std::this_thread::sleep_for(std::chrono::microseconds(1));
         // Pong
-        char s[256] = "";
+        char s[3] = "";
         char *s_ptr = s;
         int wait_count = 0;
         while (wait_count < 1000) {
@@ -132,9 +128,6 @@ int main(int argc, char **argv) {
         // Check ping-pong
         if (s != s_ptr && s[0] == 0xbc) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
-            std::cout << "data: ";
-            for(int i=0;i<15;++i)std::cout <<int(s[i])<<" ";
-            std::cout << std::endl;
             int index_pong = s[1] | (s[2] << 8);
             if (index == index_pong) {
                 int64_t timestamp_pong = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

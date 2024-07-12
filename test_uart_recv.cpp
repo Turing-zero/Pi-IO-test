@@ -36,9 +36,16 @@ void sig_handler(int signum) {
     }
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
+    int baudrate = 115200;
+    int send_delay = 10;
+    if (argc > 1) {
+        baudrate = std::stoi(argv[1]);
+        send_delay = std::stoi(argv[2]);
+        std::cout << "baudrate: " << baudrate << std::endl;
+    }
     //! [Interesting]
     // If you have a valid platform configuration use numbers to represent uart
     // device. If not use raw mode where std::string is taken as a constructor
@@ -55,7 +62,7 @@ int main(void) {
         std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
         std::terminate();
     }
-    if (uart->setBaudRate(115200) != mraa::SUCCESS) {
+    if (uart->setBaudRate(baudrate) != mraa::SUCCESS) {
         std::cerr << "Error setting parity on UART" << std::endl;
     }
     if (uart->setMode(8, mraa::UART_PARITY_NONE, 1) != mraa::SUCCESS) {
@@ -74,9 +81,17 @@ int main(void) {
         int success_rate = 0;
     } comm_status;
 
+    int index = 0;
+    int lastpacket_count = 0;
+    float pingpong_delay_sum = 0; // ms
+    float pingpong_delay_ave = 0; // ms
+    int pingpong_delay_count = 0;
+    int64_t timestamp_start = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     while (flag) {
         /* send data through uart */
         // uart->writeStr("Hello Mraa!\n");
+        int64_t timestamp_ping = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        
         char s[256] = "";
         char *s_ptr = s;
         int len = 0;
@@ -86,8 +101,12 @@ int main(void) {
             // std::cout << "data available: " << s_ptr[0] << std::endl;
             len++;
         }
-        if (s != s_ptr)
-             std::cout << "str: " << s << std::endl;
+        if (s != s_ptr){
+                std::cout << "str: ";//<<int(s[0])<<" "<<int(s[1])<<" "<<int(s[2]);
+                for(int i=0;i<3;++i)
+                    std::cout<<int(s[i])<<" ";
+                std::cout<<std::endl;
+        }
         if (s != s_ptr && s[0] == 0xab) {
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);
@@ -101,7 +120,6 @@ int main(void) {
                 std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
             }
         }
-
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     //! [Interesting]

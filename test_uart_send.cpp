@@ -72,19 +72,24 @@ int main(int argc, char **argv) {
     }
 
     int index = 0;
+    int packet_count = 0;
     while (flag) {
         /* send data through uart */
         gpio->write(1);
-        char tx_buf[5] = "text";
-        // tx_buf[0] = 0xff;
-        // tx_buf[1] = index & 0xff;
-        // tx_buf[2] = (index >> 8) & 0xff;
-
+        if(index & 0xff==0xff)packet_count++;
+        int max_bytes = 10;
+        char tx_buf[5] = {0xff};
+        tx_buf[0] = 0xab;
+        tx_buf[1] = index & 0xff;
+        tx_buf[2] = (index >> 8) & 0xff;
+        tx_buf[3] = (index >> 8) & 0xff;
+        tx_buf[4] = index & 0xff;
+        // for(int i=5;i<max_bytes;i++)tx_buf[i]= 0x00;
         index++;
 
         uart->writeStr(tx_buf);
-        std::this_thread::sleep_for(std::chrono::milliseconds(send_delay));
-        gpio->write(0);
+        std::this_thread::sleep_for(std::chrono::microseconds(send_delay));
+        // gpio->write(0);
     }
     //! [Interesting]
 

@@ -10,26 +10,8 @@
  */
 
 /* standard headers */
-#include <chrono>
-#include <iostream>
 #include <signal.h>
-#include <stdlib.h>
-#include <thread>
-#include <unistd.h>
-
-/* mraa headers */
-#include "mraa/common.hpp"
-#include "mraa/uart.hpp"
-#include "mraa/gpio.hpp"
-
-/* UART port */
-#define UART_PORT 0
-#define GPIO_PORT 36
-
-/*UART DELAY*/
-// #define UART_DELAY 1 //us
-
-const char *dev_path = "/dev/ttyAMA2";
+#include "rpi_lib.h"
 
 volatile sig_atomic_t flag = 1;
 
@@ -55,28 +37,12 @@ int main(int argc, char **argv) {
         std::cout << "send_delay: " << send_delay << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
+    uart_module *uart = new uart_module(baudrate,UART_DELAY,UART3);
+    // rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART3);
 
-    // init uart
-    mraa::Uart *uart, *temp;
-    mraa::Gpio *gpio;
-    try {
-        uart = new mraa::Uart(dev_path);
-        gpio = new mraa::Gpio(GPIO_PORT);
-        gpio->dir(mraa::DIR_OUT);
-    } catch (std::exception &e) {
-        std::cerr << "Error while setting up raw UART, do you have a uart?" << std::endl;
-        std::terminate();
-    }
-    if (uart->setBaudRate(baudrate) != mraa::SUCCESS) {
-        std::cerr << "Error setting parity on UART" << std::endl;
-    }
-    if (uart->setMode(8, mraa::UART_PARITY_NONE, 1) != mraa::SUCCESS) {
-        std::cerr << "Error setting parity on UART" << std::endl;
-    }
-    if (uart->setFlowcontrol(false, false) != mraa::SUCCESS) {
-        std::cerr << "Error setting flow control UART" << std::endl;
-    }
-
+    //open serial
+    // rs485->open_rs485();
+    uart->open_uart();
     int index = 0;
     float pingpong_delay_sum = 0; // ms
     float pingpong_delay_ave = 0; // ms
@@ -89,11 +55,6 @@ int main(int argc, char **argv) {
             flag = false;
             std::cout << "test for 1min: finished." << std::endl;
         }
-
-        // std::cout << timestamp_ping << std::endl;
-        /* send data through uart */
-        gpio->write(1);
-        // std::this_thread::sleep_for(std::chrono::microseconds(1));
         char tx_buf[25] = {0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
@@ -104,33 +65,15 @@ int main(int argc, char **argv) {
         // tx_buf[4] = (timestamp_ping >> 8) & 0xff;
         // tx_buf[5] = (timestamp_ping >> 16) & 0xff;
         // tx_buf[6] = (timestamp_ping >> 24) & 0xff;
-        uart->writeStr(tx_buf);
-        std::this_thread::sleep_for(std::chrono::microseconds(UART_DELAY));
-        gpio->write(0);
-        // std::this_thread::sleep_for(std::chrono::microseconds(1));
+        // rs485->send_485packet(tx_buf);
+        uart->send_packet(tx_buf);
         // Pong
         char s[256] = "";
-        char *s_ptr = s;
-        int wait_count = 0;
-        while (wait_count < 1000) {
-            if (uart->dataAvailable(0) == false) {
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
-                wait_count++;
-            } else {
-                while (uart->dataAvailable(0)) {
-                    uart->read(s_ptr, 1);
-                    s_ptr++;
-                }
-                // std::this_thread::sleep_for(std::chrono::microseconds(UART_DELAY));
-                break;
-            }
-        }
-        if (wait_count == 10000) {
-            index = 0;
-        } 
+        // rs485->recv_485packet(s,15);
+        uart->recv_packet(s,15);
 
         // Check ping-pong
-        if (s != s_ptr && s[0] == 0xbc) {
+        if ( s[0] == 0xbc) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
             std::cout << "data: ";
             for(int i=0;i<15;++i)std::cout <<int(s[i])<<" ";
@@ -157,10 +100,6 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_for(std::chrono::milliseconds(send_delay));
     }
     //! [Interesting]
-
-    delete uart;
-    delete temp;
-    delete gpio;
 
     return EXIT_SUCCESS;
 }

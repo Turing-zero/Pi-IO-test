@@ -1,0 +1,2 @@
+使用说明:
+    test_uart_ping_new,test_uart_pong_new,test_rs485_ping_new,test_rs485_pong_new添加了几个参数可选配置---串口发送字节,停止位等等全都可选配置,默认是115200的相关配置,如需更改需自行配置,运行相关ping,pong可执行文件时,ping第三个参数uart_delay,即串口发送完成时间115200下推荐1200us的延迟.
