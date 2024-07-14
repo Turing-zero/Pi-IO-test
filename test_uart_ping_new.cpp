@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
         std::cout << "send_delay: " << send_delay << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    uart_module *uart = new uart_module(baudrate,UART_DELAY,UART3);
+    uart_module *uart = new uart_module(baudrate,UART3);
     // rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART3);
 
     //open serial
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
         // tx_buf[5] = (timestamp_ping >> 16) & 0xff;
         // tx_buf[6] = (timestamp_ping >> 24) & 0xff;
         // rs485->send_485packet(tx_buf);
-        uart->send_packet(tx_buf);
+        uart->send_packet(tx_buf,15);
         // Pong
         char s[256] = "";
         // rs485->recv_485packet(s,15);

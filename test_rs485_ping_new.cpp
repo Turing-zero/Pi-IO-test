@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
         // tx_buf[4] = (timestamp_ping >> 8) & 0xff;
         // tx_buf[5] = (timestamp_ping >> 16) & 0xff;
         // tx_buf[6] = (timestamp_ping >> 24) & 0xff;
-        rs485->send_485packet(tx_buf);
+        rs485->send_485packet(tx_buf,15);
         // uart->send_packet(tx_buf);
         // Pong
         char s[256] = "";

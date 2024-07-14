@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    uart_module *uart = new uart_module(baudrate,UART_DELAY,UART5);
+    uart_module *uart = new uart_module(baudrate,UART5);
     // rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART5);
     // rs485->open_rs485();
     uart->open_uart();
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
             tx_buf[2] = s[2];
             for(int i=3;i<15;++i)tx_buf[i]=s[i];
 
-            uart->send_packet(tx_buf);
+            uart->send_packet(tx_buf,15);
             // rs485->send_485packet(tx_buf);
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);

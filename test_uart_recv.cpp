@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
         }
         if (s != s_ptr){
                 std::cout << "str: ";//<<int(s[0])<<" "<<int(s[1])<<" "<<int(s[2]);
-                for(int i=0;i<3;++i)
+                for(int i=0;i<7;++i)
                     std::cout<<int(s[i])<<" ";
                 std::cout<<std::endl;
         }

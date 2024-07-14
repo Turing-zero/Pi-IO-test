@@ -84,10 +84,12 @@ int main(int argc, char **argv) {
         tx_buf[2] = (index >> 8) & 0xff;
         tx_buf[3] = (index >> 8) & 0xff;
         tx_buf[4] = index & 0xff;
+        tx_buf[5] = 0x00;
+        tx_buf[6] = index & 0xff;
         // for(int i=5;i<max_bytes;i++)tx_buf[i]= 0x00;
         index++;
 
-        uart->writeStr(tx_buf);
+        uart->write(tx_buf,7);
         std::this_thread::sleep_for(std::chrono::microseconds(send_delay));
         // gpio->write(0);
     }

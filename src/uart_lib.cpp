@@ -1,8 +1,8 @@
 #include "rpi_lib.h"
+#include "time.h"
 
-uart_module::uart_module(int baudrate,int uart_delay ,Uart_Port port,int databyte,mraa::UartParity parity,int stopbits,bool xonxoff,bool rtscts){
+uart_module::uart_module(int baudrate ,Uart_Port port,int databyte,mraa::UartParity parity,int stopbits,bool xonxoff,bool rtscts){
     _baudrate = baudrate;
-    _uart_delay = uart_delay;
     _port = port;
     _databyte=databyte;
     _parity=parity;
@@ -38,27 +38,34 @@ void uart_module::close_uart(){
     uart->close();
 }
 
-void uart_module::send_packet(std::string packet){
-    // std::cout << getUartDelay() << std::endl;
-    uart->writeStr(packet);
+void uart_module::send_packet(char* packet,int length){
+    // std::cout << length <<std::endl;
+    uart->write(packet,length);
 }
 
-void uart_module::recv_packet(char *packet,int max_size){
+int uart_module::recv_packet(char *packet,int max_size){
     char *temp = packet;
     int length = 0;
     int wait_count = 0;
-    while (wait_count < 1000) {
-        if (uart->dataAvailable(0) == false) {
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
-            wait_count++;
-        } else {
-            while (uart->dataAvailable(0) && length < max_size) {
+    clock_t start, finish;
+    start = clock();
+    // while (wait_count < 1000) {
+    //     if (uart->dataAvailable(0) == false) {
+    //         // std::this_thread::sleep_for(std::chrono::microseconds(100));
+    //         wait_count++;
+    //     } else {
+            while(uart->dataAvailable(0) && length < max_size) {//
                 uart->read(temp, 1);
                 temp++;
                 length++;
             }
-            // std::this_thread::sleep_for(std::chrono::microseconds(UART_DELAY));
-            break;
-        }
-    }
+            finish=clock();
+            // std::cout<<(finish-start)<<std::endl;
+            // std::cout<<finish<<std::endl;
+            // std::cout<<CLOCKS_PER_SEC<<std::endl;
+            // std::this_thread::sleep_for(std::chrono::microseconds(100));
+            // break;
+    //     }
+    // }
+        return length;
 }

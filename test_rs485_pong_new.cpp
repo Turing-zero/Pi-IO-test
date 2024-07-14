@@ -56,34 +56,35 @@ int main(int argc, char **argv) {
         /* send data through uart */
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
+        // char s1[256] = "";
         // uart->recv_packet(s,15);
-        rs485->recv_485packet(s,15);
-        if (s[0] == 0xab) {
+        int len=rs485->recv_485packet(s,25);
+        if (s[0] == 0xff) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2])<<std::endl;
             std::cout << "data: ";
-            for(int i=0;i<15;++i)std::cout <<int(s[i])<<" ";
+            for(int i=0;i<len;++i)std::cout <<int(s[i])<<" ";
             std::cout << std::endl;
             char tx_buf[25] = {0xff};
             tx_buf[0] = 0xbc;
             tx_buf[1] = s[1];
             tx_buf[2] = s[2];
-            for(int i=3;i<15;++i)tx_buf[i]=s[i];
+            for(int i=3;i<25;++i)tx_buf[i]=s[i];
 
             // uart->send_packet(tx_buf);
-            rs485->send_485packet(tx_buf);
-            if (comm_status.rx_count == 0) {
-                comm_status.rx_index_start = s[1] | (s[2] << 8);
-            } else {
-                comm_status.rx_index_end = s[1] | (s[2] << 8);
-            }
-            comm_status.rx_count++;
-            int rx_real_count = comm_status.rx_index_end - comm_status.rx_index_start + 1;
-            comm_status.success_rate = comm_status.rx_count * 100 / rx_real_count;
-            if (comm_status.rx_count % 100 == 0) {
-                std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
-            }
-            std::cout << "recv str[1]: " << int(s[1]) << std::endl;
-            std::cout << "recv str[2]: " << int(s[2]) << std::endl;
+            rs485->send_485packet(tx_buf,len);
+            // if (comm_status.rx_count == 0) {
+            //     comm_status.rx_index_start = s[1] | (s[2] << 8);
+            // } else {
+            //     comm_status.rx_index_end = s[1] | (s[2] << 8);
+            // }
+            // comm_status.rx_count++;
+            // int rx_real_count = comm_status.rx_index_end - comm_status.rx_index_start + 1;
+            // comm_status.success_rate = comm_status.rx_count * 100 / rx_real_count;
+            // if (comm_status.rx_count % 100 == 0) {
+            //     std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
+            // }
+            // std::cout << "recv str[1]: " << int(s[1]) << std::endl;
+            // std::cout << "recv str[2]: " << int(s[2]) << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));

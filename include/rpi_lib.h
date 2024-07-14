@@ -37,10 +37,9 @@ namespace devices{
 };
 class uart_module{
     public:
-        uart_module(int baudrate = 115200,int uart_delay=10 ,Uart_Port port=UART0,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
+        uart_module(int baudrate = 115200,Uart_Port port=UART0,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
         ~uart_module();
         void setBaudRate(int baudrate){ _baudrate = baudrate;}
-        void setUartDelay(int uart_delay){ _uart_delay=uart_delay;}
         void setUartPort(Uart_Port port){ _port=port;}
         void setDataByte(int databyte){ _databyte=databyte;}
         void setParity(mraa::UartParity parity){ _parity=parity;}
@@ -48,7 +47,6 @@ class uart_module{
         void setXonxoff(bool xonxoff){ _xonxoff=xonxoff;}
         void setRtscts(bool rtscts){ _rtscts=rtscts;}
         int getBaudRate(){return _baudrate;}
-        int getUartDelay(){return _uart_delay;}
         Uart_Port getUartPort(){return _port;}
         int getDataByte(){ return _databyte;}
         mraa::UartParity getParity(){ return _parity;}
@@ -57,11 +55,10 @@ class uart_module{
         bool getRtscts(){ return _rtscts;}
         void open_uart();
         void close_uart();
-        void send_packet(std::string packet);
-        void recv_packet(char *packet,int max_size);
+        void send_packet(char* packet,int length);
+        int recv_packet(char *packet,int max_size);
     private:
         int _baudrate;
-        int _uart_delay;
         Uart_Port _port;
         int _databyte;
         int _stopbyte;
@@ -77,11 +74,14 @@ class rs485_module:public uart_module{
         ~rs485_module();
         void open_rs485();
         void close_rs485();
+        void setUartDelay(int uart_delay){ _uart_delay=uart_delay;}
         void set_RsSwPort(RS485_Gpio_Port port){ _Rs_SwPort=port;}
         RS485_Gpio_Port get_RsSwPort(){return _Rs_SwPort;}
-        void send_485packet(std::string packet);
-        void recv_485packet(char *packet,int max_size);
+        int getUartDelay(){return _uart_delay;}
+        void send_485packet(char* packet,int length);
+        int recv_485packet(char *packet,int max_size);
     private:
+        int _uart_delay;
         RS485_Gpio_Port _Rs_SwPort;
         mraa::Gpio *gpio;
 };
