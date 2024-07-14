@@ -10,28 +10,8 @@
  */
 
 /* standard headers */
-#include <chrono>
-#include <iostream>
 #include <signal.h>
-#include <stdlib.h>
-#include <thread>
-#include <unistd.h>
-
-/* mraa headers */
-#include "mraa/common.hpp"
-#include "mraa/uart.hpp"
-#include "mraa/gpio.hpp"
-
-#include "io.h"
-
-/* UART port */
-#define UART_PORT 0
-#define UART_PACK_LEN 25
-
-/*UART DELAY*/
-// #define UART_DELAY 1 //us
-
-const char *dev_path = "/dev/ttyAMA2";
+#include "rpi_lib.h"
 
 volatile sig_atomic_t flag = 1;
 
@@ -45,19 +25,24 @@ void sig_handler(int signum) {
 int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
-    struct uart_params _p;
     // uart param
+    int baudrate = 115200;
     int send_delay = 10;
     int UART_DELAY = 400;
     if (argc > 1) {
-        _p.baudrate = std::stoi(argv[1]);
+        baudrate = std::stoi(argv[1]);
         send_delay = std::stoi(argv[2]);
-        std::cout << "baudrate: " << _p.baudrate << std::endl;
+        UART_DELAY = std::stoi(argv[3]);
+        std::cout << "baudrate: " << baudrate << std::endl;
+        std::cout << "send_delay: " << send_delay << std::endl;
+        std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
+    // uart_module *uart = new uart_module(baudrate,UART_DELAY,UART3);
+    rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART3);
 
-    // init uart
-    mraa::Uart *uart = uart_init(dev_path, _p);
-
+    //open serial
+    rs485->open_rs485();
+    // uart->open_uart();
     int index = 0;
     float pingpong_delay_sum = 0; // ms
     float pingpong_delay_ave = 0; // ms
@@ -68,15 +53,9 @@ int main(int argc, char **argv) {
         int64_t timestamp_ping = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         if (timestamp_ping - timestamp_start > 1000000 * 60) {
             flag = false;
-            pingpong_delay_ave = pingpong_delay_sum / pingpong_delay_count;
-            std::cout << "pingpong delay: " << pingpong_delay_ave << "ms" << std::endl;
             std::cout << "test for 1min: finished." << std::endl;
-            break;
         }
-
-        // std::cout << timestamp_ping << std::endl;
-        /* send data through uart */
-        char tx_buf[UART_PACK_LEN] = {0xff};
+        char tx_buf[25] = {0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
         tx_buf[2] = 0xff;//(index >> 8) & 0xff;
@@ -86,30 +65,15 @@ int main(int argc, char **argv) {
         // tx_buf[4] = (timestamp_ping >> 8) & 0xff;
         // tx_buf[5] = (timestamp_ping >> 16) & 0xff;
         // tx_buf[6] = (timestamp_ping >> 24) & 0xff;
-        uart->writeStr(tx_buf);
-        std::this_thread::sleep_for(std::chrono::microseconds(UART_DELAY));
-        gpio->write(0);
-        // std::this_thread::sleep_for(std::chrono::microseconds(1));
+        rs485->send_485packet(tx_buf,15);
+        // uart->send_packet(tx_buf);
         // Pong
-        char s[UART_PACK_LEN] = "";
-        int wait_count = 0;
-        int recv_len = 0;
-        while (wait_count < 1000) {
-            if (uart->dataAvailable(0) == false) {
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
-                wait_count++;
-            } else {
-                recv_len = uart_read(uart, s, UART_PACK_LEN);
-                // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
-                break;
-            }
-        }
-        if (wait_count == 10000) {
-            index = 0;
-        } 
+        char s[256] = "";
+        rs485->recv_485packet(s,15);
+        // uart->recv_packet(s,15);
 
         // Check ping-pong
-        if (s[0] == 0xbc) {
+        if ( s[0] == 0xbc) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2]) << " " << index << std::endl;
             std::cout << "data: ";
             for(int i=0;i<15;++i)std::cout <<int(s[i])<<" ";
@@ -136,8 +100,6 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_for(std::chrono::milliseconds(send_delay));
     }
     //! [Interesting]
-
-    delete uart;
 
     return EXIT_SUCCESS;
 }
