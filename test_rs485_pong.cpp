@@ -13,6 +13,7 @@
 #include <map>
 #include <signal.h>
 #include "rpi_lib.h"
+#define TX_RX_SWIO 40
 
 volatile sig_atomic_t flag = 1;
 
@@ -34,8 +35,7 @@ int main(int argc, char **argv) {
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    // uart_module *uart = new uart_module(baudrate,UART_DELAY,UART5);
-    rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART5);
+    rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART5,TX_RX_SWIO);
     rs485->open_rs485();
 
     //! [Interesting]
@@ -56,8 +56,6 @@ int main(int argc, char **argv) {
         /* send data through uart */
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
-        // char s1[256] = "";
-        // uart->recv_packet(s,15);
         int len=rs485->recv_485packet(s,25);
         if (s[0] == 0xff) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2])<<std::endl;
@@ -72,19 +70,19 @@ int main(int argc, char **argv) {
 
             // uart->send_packet(tx_buf);
             rs485->send_485packet(tx_buf,len);
-            // if (comm_status.rx_count == 0) {
-            //     comm_status.rx_index_start = s[1] | (s[2] << 8);
-            // } else {
-            //     comm_status.rx_index_end = s[1] | (s[2] << 8);
-            // }
-            // comm_status.rx_count++;
-            // int rx_real_count = comm_status.rx_index_end - comm_status.rx_index_start + 1;
-            // comm_status.success_rate = comm_status.rx_count * 100 / rx_real_count;
-            // if (comm_status.rx_count % 100 == 0) {
-            //     std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
-            // }
-            // std::cout << "recv str[1]: " << int(s[1]) << std::endl;
-            // std::cout << "recv str[2]: " << int(s[2]) << std::endl;
+            if (comm_status.rx_count == 0) {
+                comm_status.rx_index_start = s[1] | (s[2] << 8);
+            } else {
+                comm_status.rx_index_end = s[1] | (s[2] << 8);
+            }
+            comm_status.rx_count++;
+            int rx_real_count = comm_status.rx_index_end - comm_status.rx_index_start + 1;
+            comm_status.success_rate = comm_status.rx_count * 100 / rx_real_count;
+            if (comm_status.rx_count % 100 == 0) {
+                std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
+            }
+            std::cout << "recv str[1]: " << int(s[1]) << std::endl;
+            std::cout << "recv str[2]: " << int(s[2]) << std::endl;
         }
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));

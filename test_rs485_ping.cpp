@@ -12,7 +12,7 @@
 /* standard headers */
 #include <signal.h>
 #include "rpi_lib.h"
-
+#define TX_RX_SWIO 36
 volatile sig_atomic_t flag = 1;
 
 void sig_handler(int signum) {
@@ -37,12 +37,10 @@ int main(int argc, char **argv) {
         std::cout << "send_delay: " << send_delay << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    uart_module *uart = new uart_module(baudrate,UART3);
-    // rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART3);
+    rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART3,TX_RX_SWIO);
 
     //open serial
-    // rs485->open_rs485();
-    uart->open_uart();
+    rs485->open_rs485();
     int index = 0;
     float pingpong_delay_sum = 0; // ms
     float pingpong_delay_ave = 0; // ms
@@ -58,19 +56,13 @@ int main(int argc, char **argv) {
         char tx_buf[25] = {0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
-        tx_buf[2] = 0xff;//(index >> 8) & 0xff;
+        tx_buf[2] = 0xff;
         for(int i=3;i<15;++i)tx_buf[i]=0xA5;
 
-        // tx_buf[3] = timestamp_ping & 0xff;
-        // tx_buf[4] = (timestamp_ping >> 8) & 0xff;
-        // tx_buf[5] = (timestamp_ping >> 16) & 0xff;
-        // tx_buf[6] = (timestamp_ping >> 24) & 0xff;
-        // rs485->send_485packet(tx_buf);
-        uart->send_packet(tx_buf,15);
+        rs485->send_485packet(tx_buf,15);
         // Pong
         char s[256] = "";
-        // rs485->recv_485packet(s,15);
-        uart->recv_packet(s,15);
+        rs485->recv_485packet(s,15);
 
         // Check ping-pong
         if ( s[0] == 0xbc) {
