@@ -18,12 +18,6 @@ enum Uart_Port{
     UART4,
     UART5,
 };
-enum RS485_Gpio_Port{
-    RS485_RW_Switch_Gpio3 = 36,
-    RS485_RW_Switch_Gpio4 = 38,
-    RS485_RW_Switch_Gpio5 = 40,
-    Fault_Gpio = -1,
-};
 namespace devices{
     inline  std::string dev_path[6]={
         "/dev/ttyAMA0",
@@ -57,6 +51,7 @@ class uart_module{
         void close_uart();
         void send_packet(char* packet,int length);
         int recv_packet(char *packet,int max_size);
+        static unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
     private:
         int _baudrate;
         Uart_Port _port;
@@ -70,19 +65,19 @@ class uart_module{
 
 class rs485_module:public uart_module{
     public:
-        rs485_module(int baudrate = 115200,int uart_delay=1200 ,Uart_Port port=UART0,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
+        rs485_module(int baudrate = 115200,int uart_delay=1200 ,Uart_Port port=UART0,int sw_gpio=-1,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
         ~rs485_module();
         void open_rs485();
         void close_rs485();
         void setUartDelay(int uart_delay){ _uart_delay=uart_delay;}
-        void set_RsSwPort(RS485_Gpio_Port port){ _Rs_SwPort=port;}
-        RS485_Gpio_Port get_RsSwPort(){return _Rs_SwPort;}
+        void set_RsSwPort(int port){ _Rs_SwPort=port;}
+        int get_RsSwPort(){return _Rs_SwPort;}
         int getUartDelay(){return _uart_delay;}
         void send_485packet(char* packet,int length);
         int recv_485packet(char *packet,int max_size);
     private:
         int _uart_delay;
-        RS485_Gpio_Port _Rs_SwPort;
+        int _Rs_SwPort;
         mraa::Gpio *gpio;
 };
 #endif
