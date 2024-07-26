@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    rs485_module *rs485 = new rs485_module(baudrate,UART_DELAY,UART5,TX_RX_SWIO);
-    rs485->open_rs485();
+    rs485_module rs485(baudrate,UART_DELAY,UART5,TX_RX_SWIO);
+    rs485.open_rs485();
 
     //! [Interesting]
     // If you have a valid platform configuration use numbers to represent uart
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
         /* send data through uart */
         // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
-        int len=rs485->recv_485packet(s,25);
+        int len=rs485.recv_485packet(s,25);
         if (s[0] == 0xff) {
             // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2])<<std::endl;
             std::cout << "data: ";
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
             for(int i=3;i<25;++i)tx_buf[i]=s[i];
 
             // uart->send_packet(tx_buf);
-            rs485->send_485packet(tx_buf,len);
+            rs485.send_485packet(tx_buf,len);
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);
             } else {
