@@ -9,6 +9,7 @@
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
 #include "mraa/gpio.hpp"
+#include "mraa/spi.hpp"
 
 enum Uart_Port{
     UART0=0,
@@ -79,5 +80,24 @@ class rs485_module:public uart_module{
         int _uart_delay;
         int _Rs_SwPort;
         mraa::Gpio *gpio;
+};
+
+class spi_module{
+    public:
+        spi_module(int bus=0,int cs=0,int spimode=0,int frequency=1000000,int bitPerWord=8,bool lsbmode=false);
+        ~spi_module(); 
+        void open_spi();
+        void close_spi();
+        mraa::Spi_Mode get_mode(int spimode);  
+        void transfer(uint8_t* tx_buf,uint8_t* rx_buf,int length);
+        void transfer_word(uint16_t* tx_buf,uint16_t* rx_buf,int length);
+    private:
+        int _bus;
+        int _cs;
+        int _spimode;
+        int _frequency;
+        int _bitPerWord;
+        bool _lsbmode;//fasle为从高到低收发，反之从低到高
+        mraa::Spi *spi;
 };
 #endif

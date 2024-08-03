@@ -19,7 +19,6 @@
 
 /* mraa headers */
 #include "mraa/common.hpp"
-#include "mraa/uart.hpp"
 #include "mraa/gpio.hpp"
 #include "mraa/spi.hpp"
 

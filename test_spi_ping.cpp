@@ -34,6 +34,8 @@ void sig_handler(int signum) {
 int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
+    int64_t timestamp_ping = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();    
+
     int send_delay = 1800;
     if (argc > 1) {
     }
@@ -55,16 +57,19 @@ int main(int argc, char **argv) {
     struct timespec start,end;
     clock_gettime(CLOCK_MONOTONIC, &start);
     int cnt=0;
+    float pingpong_delay_sum = 0; // ms
+    float pingpong_delay_ave = 0; // ms
+    int pingpong_delay_count = 0;
     while (flag) {
         cnt++;
         // 发送和接收的数据缓冲区
         uint8_t send_data[BUFFER_SIZE] = {0x01, 0x02, 0x03};;
         uint8_t recv_data[BUFFER_SIZE] = {0};
         send_data[0] = 0xab;
-        send_data[1] = index & 0xff;
-        send_data[2] = (index >> 8) & 0xff;
-        send_data[3] = (index >> 8) & 0xff;
-        send_data[4] = index & 0xff;
+        send_data[1] = index & 0x0f;
+        send_data[2] = index & 0xf0;
+        send_data[3] = (index >> 8) & 0x0f;
+        send_data[4] = (index >> 8) & 0xf0;
         // tx_buf[5] = 0x00;
         // tx_buf[6] = index & 0xff;
         spi.transfer(send_data,recv_data,BUFFER_SIZE);
@@ -76,9 +81,26 @@ int main(int argc, char **argv) {
         //     cnt=0;
         //     clock_gettime(CLOCK_MONOTONIC, &start);
         // }
+        // std::cout << (int)recv_data[0] <<std::endl;
+        if(recv_data[0]==0x10){
+            int index_pong = recv_data[1] | (recv_data[2] << 4) | (recv_data[3] << 8) | (recv_data[4] << 12);
+            // std::cout<<recv_data[1]<<std::endl;
+            if (index == index_pong) {
+                int64_t timestamp_pong = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+                int pingpong_delay = (timestamp_pong - timestamp_ping) / 1000.0;
+                pingpong_delay_sum += pingpong_delay;
+                pingpong_delay_count++;
+                // Output
+                if (pingpong_delay_count % 100 == 0) {
+                    pingpong_delay_ave = pingpong_delay_sum / pingpong_delay_count;
+                    std::cout << "pingpong delay: " << pingpong_delay_ave << "ms" << std::endl;
+                }
+            }
+        }
         // 将接收到的数据转换为字符串
-        std::string recv_str(reinterpret_cast<char*>(recv_data), BUFFER_SIZE);
-        std::cout << "Received from ESP32-C6: " << recv_str << std::endl;
+        // std::string recv_str(reinterpret_cast<char*>(recv_data), BUFFER_SIZE);
+        // std::cout << "Received from ESP32-C6: " << recv_str << std::endl;
         index++;
 
         std::this_thread::sleep_for(std::chrono::microseconds(send_delay));
