@@ -1,15 +1,3 @@
-/*
- * Author: Brendan Le Foll <brendan.le.foll@intel.com>
- * Contributors: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
- * Copyright (c) 2015 Intel Corporation.
- *
- * SPDX-License-Identifier: MIT
- *
- * Example usage: Prints "Hello Mraa!" recursively. Press Ctrl+C to exit
- *
- */
-
-/* standard headers */
 #include <signal.h>
 #include <rpi_lib.h>
 #define TX_RX_SWIO 40
@@ -46,8 +34,6 @@ int main(int argc, char **argv) {
     int count = 0;
 
     while (flag) {
-        // std::cout << timestamp_ping << std::endl;
-        /* send data through uart */
         char tx_buf[8]={0xFF,0xFF,0x01,0x04,0x02,0x2B,0x01,0xCC}; //protocal 1.0
 
         rs485.send_485packet(tx_buf,8);

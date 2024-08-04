@@ -39,16 +39,10 @@ int main(int argc, char *argv[]){
       uint16_t config = 0xF120;
       buf[0] = 0xF1;
       buf[1] = 0x20;
-      // printf("%d",spiXfer(h, buf, ref, 2));
       spiXfer(h, buf, ref, 2);
-      // usleep(1000);
-      // spiWrite(h,buf,2);
-      //  usleep(100);
 
-    //   v = ((buf[1]&3)<<8) | buf[2];
       v = (ref[0]<<8 | ref[1])/65535*4.096;
-    // std::cout<<"voltage"<<v<<std::endl;
-      // printf("%d\n", (int)ref[0]);
+      // printf("%f\n", v);
    }
 
    diff = time_time() - start;
@@ -56,7 +50,6 @@ int main(int argc, char *argv[]){
 
    fprintf(stderr, "sps=%.1f @ %d bps (%d/%.1f)\n",
       (double)loops / diff, speed, loops, diff);
-    // printf("sps=%.1f" ,(double)loops / diff);
 
     spiClose(h);
 

@@ -1,15 +1,3 @@
-/*
- * Author: Brendan Le Foll <brendan.le.foll@intel.com>
- * Contributors: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
- * Copyright (c) 2015 Intel Corporation.
- *
- * SPDX-License-Identifier: MIT
- *
- * Example usage: Prints "Hello Mraa!" recursively. Press Ctrl+C to exit
- *
- */
-
-/* standard headers */
 #include <signal.h>
 #include "rpi_lib.h"
 #define TX_RX_SWIO 36
