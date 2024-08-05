@@ -6,11 +6,16 @@
 #include <thread>
 #include <string>
 #include <chrono>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
 #include "mraa/gpio.hpp"
 #include "mraa/spi.hpp"
 
+
+#define MAX_UDP_BUFFER_SIZE 1024
 enum Uart_Port{
     UART0=0,
     UART1,
@@ -99,5 +104,22 @@ class spi_module{
         int _bitPerWord;
         bool _lsbmode;//fasle为从高到低收发，反之从低到高
         mraa::Spi *spi;
+};
+
+class udp_module{
+    public:
+        udp_module(char* ip,int port);
+        void open_udp();
+        void close_udp();
+        void send_pkg(char *message);
+        int recv_pkg(char *recv_msg);
+    private:
+        int _port;
+        int _sockfd;
+        char* _ip;
+        char _recvmsg[MAX_UDP_BUFFER_SIZE];
+        int _buffer_size;
+        sockaddr_in server_addr, client_addr;
+        socklen_t client_addr_len;
 };
 #endif
