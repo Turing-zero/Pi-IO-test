@@ -6,10 +6,16 @@
 #include <thread>
 #include <string>
 #include <chrono>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #include "mraa/common.hpp"
 #include "mraa/uart.hpp"
 #include "mraa/gpio.hpp"
+#include "mraa/spi.hpp"
 
+
+#define MAX_UDP_BUFFER_SIZE 1024
 enum Uart_Port{
     UART0=0,
     UART1,
@@ -79,5 +85,41 @@ class rs485_module:public uart_module{
         int _uart_delay;
         int _Rs_SwPort;
         mraa::Gpio *gpio;
+};
+
+class spi_module{
+    public:
+        spi_module(int bus=0,int cs=0,int spimode=0,int frequency=1000000,int bitPerWord=8,bool lsbmode=false);
+        ~spi_module(); 
+        void open_spi();
+        void close_spi();
+        mraa::Spi_Mode get_mode(int spimode);  
+        void transfer(uint8_t* tx_buf,uint8_t* rx_buf,int length);
+        void transfer_word(uint16_t* tx_buf,uint16_t* rx_buf,int length);
+    private:
+        int _bus;
+        int _cs;
+        int _spimode;
+        int _frequency;
+        int _bitPerWord;
+        bool _lsbmode;//fasle为从高到低收发，反之从低到高
+        mraa::Spi *spi;
+};
+
+class udp_module{
+    public:
+        udp_module(char* ip,int port);
+        void open_udp();
+        void close_udp();
+        void send_pkg(char *message);
+        int recv_pkg(char *recv_msg);
+    private:
+        int _port;
+        int _sockfd;
+        char* _ip;
+        char _recvmsg[MAX_UDP_BUFFER_SIZE];
+        int _buffer_size;
+        sockaddr_in server_addr, client_addr;
+        socklen_t client_addr_len;
 };
 #endif

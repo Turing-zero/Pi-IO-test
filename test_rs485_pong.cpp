@@ -1,15 +1,3 @@
-/*
- * Author: Brendan Le Foll <brendan.le.foll@intel.com>
- * Contributors: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
- * Copyright (c) 2015 Intel Corporation.
- *
- * SPDX-License-Identifier: MIT
- *
- * Example usage: Prints "Hello Mraa!" recursively. Press Ctrl+C to exit
- *
- */
-
-/* standard headers */
 #include <map>
 #include <signal.h>
 #include "rpi_lib.h"
@@ -38,11 +26,6 @@ int main(int argc, char **argv) {
     rs485_module rs485(baudrate,UART_DELAY,UART5,TX_RX_SWIO);
     rs485.open_rs485();
 
-    //! [Interesting]
-    // If you have a valid platform configuration use numbers to represent uart
-    // device. If not use raw mode where std::string is taken as a constructor
-    // parameter
-
     struct COMM_STATUS {
         int rx_count = 0;
         int tx_count = 0;
@@ -53,12 +36,9 @@ int main(int argc, char **argv) {
     } comm_status;
 
     while (flag) {
-        /* send data through uart */
-        // uart->writeStr("Hello Mraa!\n");
         char s[256] = "";
         int len=rs485.recv_485packet(s,25);
         if (s[0] == 0xff) {
-            // std::cout << "data available: " << (int)(s[0]) << " " << (int)(s[1]) << " " << (int)(s[2])<<std::endl;
             std::cout << "data: ";
             for(int i=0;i<len;++i)std::cout <<int(s[i])<<" ";
             std::cout << std::endl;
@@ -68,7 +48,6 @@ int main(int argc, char **argv) {
             tx_buf[2] = s[2];
             for(int i=3;i<25;++i)tx_buf[i]=s[i];
 
-            // uart->send_packet(tx_buf);
             rs485.send_485packet(tx_buf,len);
             if (comm_status.rx_count == 0) {
                 comm_status.rx_index_start = s[1] | (s[2] << 8);
