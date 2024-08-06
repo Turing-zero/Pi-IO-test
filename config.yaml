@@ -1,7 +1,0 @@
-baudrate: 115200
-send_delay: 10
-uart_delay: 1200
-
-RS485_TX_RX_SWITCH_IO1: 36
-RS485_TX_RX_SWITCH_IO2: 38
-RS485_TX_RX_SWITCH_IO3: 40

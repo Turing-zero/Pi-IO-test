@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     if (argc > 1) {
     }
 
-    spi_module spi(0,0,0,500000,8,false);
+    spi_module spi(0,0,0,200000,8,false);
     spi.open_spi();
 
     // 发送和接收的数据缓冲区
@@ -62,9 +62,8 @@ int main(int argc, char **argv) {
     struct timespec start,end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    while (flag) {
+    while (flag){
         cnt++;
-
         clock_gettime(CLOCK_MONOTONIC, &end);
         double elapsed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
         if (elapsed >= 1.0) {  // 统计1秒内的采样次数
@@ -79,7 +78,7 @@ int main(int argc, char **argv) {
         // for(int i=0;i<NUM_CHANNEL;i++){
         //     std::cout<<"ADC Channel"<<i<<":"<<adc_value[i]<<std::endl;
         // }
-        std::cout<<"ADC Channel0"<<":"<<readADC(spi,0,ref_v)<<std::endl;
+        std::cout<<"ADC Channel0"<<":"<<readADC(spi,1,ref_v)<<std::endl;
        
 
         index++;
