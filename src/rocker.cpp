@@ -1,7 +1,7 @@
 #include "rocker.h"
 
-void Rocker::open_rocker(){
-    rocker = new spi_module(0,0,0,500000,8,false);
+void Rocker::open_rocker(int bus,int cs,int spi_mode,int frequency,int bit_per_word,bool lsb_mode){
+    rocker = new spi_module(bus,cs,spi_mode,frequency,bit_per_word,lsb_mode);
     rocker->open_spi();
 }
 
@@ -23,15 +23,27 @@ std::pair<double,double> Rocker::get_position(double r){
     double adc_yaw = get_value(vr2);
     
 
-    double x = (adc_pitch-1.64)/1.64;
-    double upstep = r/(3.28 - 1.76);
-    double downstep = r/(1.76);
+    double x = 0;
     double y = 0;
-    if(adc_yaw>1.76){
-        y=0 + (adc_yaw - 1.76)*upstep;
+    double x_upstep = r/(3.28 - 1.64);
+    double x_downstep = r/(1.64-0.28);
+    double y_upstep = r/(3.28 - 1.76);
+    double y_downstep = r/(1.76-0.28);
+    if(adc_pitch>1.64){
+        x = 0 + (adc_pitch - 1.64)*x_upstep;
     }else{
-        y=-(1.76-adc_yaw)*downstep;
+        if(adc_pitch<0.28) x = -r;
+        else y=-(1.64-adc_pitch)*x_downstep;
     }
+    if(adc_yaw>1.76){
+        y=0 + (adc_yaw - 1.76)*y_upstep;
+    }else{
+        if(adc_yaw<0.28) y = -r;
+        else y=-(1.76-adc_yaw)*y_downstep;
+    }
+    if(x>r) x = r;
+    if(y>r) y = r;
+
     return std::pair<double,double>{x,y};
 }
 
@@ -40,4 +52,19 @@ std::pair<double,double> Rocker::get_adcvalue(){
     double adc_yaw = get_value(vr2);
 
     return std::pair<double,double>{adc_pitch,adc_yaw};
+}
+
+extern "C"{
+    Rocker* Rocker_py(){
+        return new Rocker();
+    }
+    double open_rocker_py(Rocker*rocker_py,int bus,int cs,int spi_mode,int frequency,int bit_per_word,bool lsb_mode){
+        rocker_py->open_rocker(bus,cs,spi_mode,frequency,bit_per_word,lsb_mode);
+    }
+    double get_value_py(Rocker*rocker_py,Channel channel){
+        return rocker_py->get_value(channel);
+    }
+    void Rocker_delete(Rocker *rocker_py){
+        delete rocker_py;
+    }
 }

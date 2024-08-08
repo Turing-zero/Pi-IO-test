@@ -13,6 +13,7 @@
 #include "mraa/uart.hpp"
 #include "mraa/gpio.hpp"
 #include "mraa/spi.hpp"
+#include "mraa/i2c.hpp"
 
 
 #define MAX_UDP_BUFFER_SIZE 1024
@@ -23,6 +24,16 @@ enum Uart_Port{
     UART3,
     UART4,
     UART5,
+};
+
+enum Channel{
+    vr1 = 0,
+    vr2 = 1,
+    sw0 = 2,
+    sw1 = 3,
+    sw2 = 4,
+    sw3 = 5,
+    sw4 = 6
 };
 namespace devices{
     inline  std::string dev_path[6]={

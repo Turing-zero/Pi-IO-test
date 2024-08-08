@@ -16,6 +16,7 @@ static int iniHandler(void* user, const char* section, const char* name, const c
 int main(){
     Debugger debug;
     debug.open_device(ROCKER);
+    // debug.open_device(BUTTON);
 
     // Config config;
     // if (ini_parse("../config.ini", iniHandler, &config) < 0){
@@ -34,5 +35,6 @@ int main(){
     // }
     while(true){
         std::cout << debug.get_value().first <<" "<< debug.get_value().second << std::endl;
+        // std::cout << debug.get_status(sw2) <<std::endl;
     }
 }
