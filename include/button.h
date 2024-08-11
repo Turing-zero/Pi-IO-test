@@ -1,3 +1,5 @@
+#ifndef __BUTTON__
+#define __BUTTON__
 #include "rpi_lib.h"
 
 #define BUFFER_SIZE 2
@@ -14,3 +16,4 @@ private:
     double sw3_value;
     double sw4_value;
 };
+#endif

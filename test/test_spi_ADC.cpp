@@ -12,7 +12,7 @@
 
 /* ADC CHANNEL  */
 #define NUM_CHANNEL 1
-const double ref_v = 4.096;
+const double ref_v = 5;
 
 const int BUFFER_SIZE = 128;
 
@@ -29,7 +29,7 @@ double readADC(spi_module &spi,int channel,double ref_v){
      /* read ADC */
     uint8_t send_data[BUFFER_SIZE] = {0x00,0x00};
     uint8_t recv_data[BUFFER_SIZE] = {0};
-    uint16_t config = 0xF120;
+    uint16_t config = 0xF1C0;
     config |= channel << 9;
     send_data[0] = config >> 8 & 0xFF;
     send_data[1] = config & 0xFF;
@@ -56,12 +56,12 @@ int main(int argc, char **argv) {
     double diff = 0;
     int count = 0;
     int cnt=0;
-    int total = 0;
     int last_v = 0;
     double adc_value[NUM_CHANNEL];
     struct timespec start,end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
+    double total = 0;
     while (flag){
         cnt++;
         clock_gettime(CLOCK_MONOTONIC, &end);
@@ -78,7 +78,15 @@ int main(int argc, char **argv) {
         // for(int i=0;i<NUM_CHANNEL;i++){
         //     std::cout<<"ADC Channel"<<i<<":"<<adc_value[i]<<std::endl;
         // }
-        std::cout<<"ADC Channel0"<<":"<<readADC(spi,1,ref_v)<<std::endl;
+        double voltage = readADC(spi,0,ref_v);
+        total+=abs(voltage-0);
+        count++;
+        if(count==1000){
+            std::cout<< total/1000.0 <<std::endl;
+            count=0;
+            total = 0;
+        }
+        // std::cout<<"ADC Channel0"<<":"<<readADC(spi,0,ref_v)<<std::endl;
        
 
         index++;

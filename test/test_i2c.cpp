@@ -13,9 +13,6 @@ int main() {
         std::cerr << "Error while setting up raw i2c, do you have a i2c" << 1 <<"?" <<std::endl;
         std::terminate();
     }
-    // if (i2c->frequency(mraa::I2C_STD) != mraa::SUCCESS) {
-    //     std::cerr << "Error setting frequency on I2c" << mraa::I2C_HIGH << std::endl;
-    // }
     if (i2c->address(I2C_SLAVE_ADDR) != mraa::SUCCESS) {
         std::cerr << "Error setting address on I2c" <<I2C_SLAVE_ADDR<< std::endl;
     }
@@ -35,12 +32,6 @@ int main() {
         // 从从设备读取数据
         uint8_t data_read[BUFFER_SIZE];
         i2c->read(data_read,BUFFER_SIZE);
-        // if (data_read == -1) {
-        //     std::cerr << "Failed to read from I2C slave" << std::endl;
-        //     return -1;
-        // } else {
-        //     std::cout << "Read from I2C slave succeeded, data: 0x" << std::hex << (int)data_read << std::endl;
-        // }
 
         cnt++;
         clock_gettime(CLOCK_MONOTONIC, &end);

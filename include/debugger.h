@@ -1,3 +1,5 @@
+#ifndef __DEBUGGER__
+#define __DEBUGGER__
 #include "rpi_lib.h"
 #include "rocker.h"
 #include "button.h"
@@ -8,7 +10,6 @@ enum Device{
     IMU = 2,
     BUTTON = 3
 };
-
 
 class Debugger{
     public:
@@ -23,3 +24,4 @@ class Debugger{
         Rocker _rocker;
         Button _button;
 };
+#endif

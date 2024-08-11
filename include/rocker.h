@@ -1,3 +1,5 @@
+#ifndef __ROCKER__
+#define __ROCKER__
 #include "rpi_lib.h"
 
 #define BUFFER_SIZE 2
@@ -5,6 +7,8 @@
 
 class Rocker{
 public:
+    //Rocker();
+    ~Rocker();
     void open_rocker(int bus,int cs,int spi_mode,int frequency,int bit_per_word,bool lsb_mode = false);
     std::pair<double,double> get_position(double r=1);
     std::pair<double,double> get_adcvalue();
@@ -22,3 +26,4 @@ extern "C"{
     double get_value_py(Rocker*rocker_py,Channel channel);
     void Rocker_delete(Rocker *rocker_py);
 }
+#endif

@@ -6,6 +6,7 @@ This test will initialize the display using displayio and draw a solid green
 background, a smaller purple rectangle, and some yellow text.
 """
 import board
+import busio
 import terminalio
 import displayio
 import smbus2
@@ -19,11 +20,12 @@ except ImportError:
     from displayio import FourWire
 from adafruit_display_text import label
 from adafruit_st7789 import ST7789
-from adafruit_bus_device.i2c_device import I2CDevice
 # Release any resources currently in use for the displays
 displayio.release_displays()
 
-spi = board.SPI()
+#默认是SPI0 如果要配置SP1的话需要手动配置  例如board.D35代表spi1 MISO 是物理引脚35
+# spi = board.SPI()
+spi = busio.SPI(board.SCLK,board.MOSI,board.MISO)
 
 # CST816T I2C地址
 CST816T_I2C_ADDRESS = 0x15
@@ -48,22 +50,22 @@ def read_touch_data():
     except Exception as e:
         print(f"读取触摸数据时出错: {e}")
         return None, None
-tft_cs = board.D8
+tft_cs = board.CE0
 tft_dc = board.D24
 
-display_bus = FourWire(spi, command=tft_dc, chip_select=tft_cs, reset=board.D9)
+display_bus = FourWire(spi, command=tft_dc, chip_select=tft_cs, reset=board.D9)#SPI初始化
 
 display = ST7789(display_bus, width=280, height=240, rowstart=20, rotation=90)
 
 # Make the display context
-splash = displayio.Group()
-display.root_group = splash
+splash = displayio.Group() #用于管理一个显示对象
+display.root_group = splash #用于根显示组
 
-color_bitmap = displayio.Bitmap(280, 240, 1)
-color_palette = displayio.Palette(1)
+color_bitmap = displayio.Bitmap(280, 240, 1)#第一个参数是图像宽度，第二个参数是图像高度，第三个参数是图像深度
+color_palette = displayio.Palette(1)#图像颜色数量    调色板
 color_palette[0] = 0x00FF00  # Bright Green
 
-bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)#
 splash.append(bg_sprite)
 
 # Draw a smaller inner rectangle
@@ -74,19 +76,20 @@ inner_sprite = displayio.TileGrid(inner_bitmap, pixel_shader=inner_palette, x=20
 splash.append(inner_sprite)
 
 # Draw a label
-# text_group = displayio.Group(scale=3, x=37, y=120)
-# text = "Hello RPI!"
-# text_area = label.Label(terminalio.FONT, text=text, color=0xFFFF00)
-# text_group.append(text_area)  # Subgroup for text scaling
-# splash.append(text_group)
+text_group = displayio.Group(scale=3, x=37, y=120)
+text = "Hello RPI!"
+text_area = label.Label(terminalio.FONT, text=text, color=0xFFFF00)
+text_group.append(text_area)  # Subgroup for text scaling
+splash.append(text_group)
 
 # display.show(None)
 # def touch_thread():
 while True:
-    x, y = read_touch_data()
-    if x is not None and y is not None:
-        print(f"触摸点: ({x}, {y})")
-    time.sleep(0.5)
+    pass
+#     x, y = read_touch_data()
+#     if x is not None and y is not None:
+#         print(f"触摸点: ({x}, {y})")
+#     time.sleep(0.5)
 
 # while True:
 #     pass

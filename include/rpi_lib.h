@@ -133,4 +133,20 @@ class udp_module{
         sockaddr_in server_addr, client_addr;
         socklen_t client_addr_len;
 };
+
+class i2c_module{
+    public:
+        i2c_module(int bus);
+        ~i2c_module();
+        void open_i2c();
+        mraa::Result write(uint8_t addr,uint8_t*data,int length);
+        int read(uint8_t addr,uint8_t*data,int length);
+        mraa::Result writeByte(uint8_t addr,uint8_t data);
+        uint8_t readByte(uint8_t addr,uint8_t data);
+        int readBytesReg(uint8_t addr,uint8_t reg,uint8_t *data,int length);
+        void close_i2c();
+    private:
+        int _bus;
+        mraa::I2c *i2c;
+};
 #endif

@@ -1,3 +1,5 @@
+#ifndef __DYNAMIXEL__
+#define __DYNAMIXEL__
 #include "rpi_lib.h"
 
 class Dynamixel{
@@ -6,3 +8,4 @@ class Dynamixel{
   private:
   rs485_module *Dynamixel;  
 };
+#endif

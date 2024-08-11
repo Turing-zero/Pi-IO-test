@@ -18,3 +18,18 @@ bool Button::get_status(Channel channel){
     if(voltage > 2) return false;
     return true;
 }
+
+extern "C"{
+    Button* Button_py(){
+        return new Button();
+    }
+    void open_button_py(Button*button_py,int bus,int cs,int spi_mode,int frequency,int bit_per_word,bool lsb_mode){
+        button_py->open_Button(bus,cs,spi_mode,frequency,bit_per_word,lsb_mode);
+    }
+    double get_status_py(Button*button_py,Channel channel){
+        return button_py->get_status(channel);
+    }
+    void Button_delete(Button *button_py){
+        delete button_py;
+    }
+}

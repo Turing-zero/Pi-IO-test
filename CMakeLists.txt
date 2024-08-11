@@ -13,11 +13,11 @@ file(GLOB SHARED_SOURCE_FILES
 file(GLOB HEADERS 
     ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 
-add_library(my_library SHARED ${SHARED_SOURCE_FILES})
+add_library(debugger SHARED ${SHARED_SOURCE_FILES})
 
-target_link_libraries(my_library mraa stdc++)
+target_link_libraries(debugger mraa stdc++)
 
-install(TARGETS my_library DESTINATION lib)
+install(TARGETS debugger DESTINATION lib)
 install(FILES ${HEADERS} DESTINATION include)
 
 add_subdirectory(test)
