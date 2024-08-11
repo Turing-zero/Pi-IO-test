@@ -11,4 +11,7 @@ while True:
     count=count+1
     # if count==1000000:
     #     lcd.remove_rectangle(0)
+    x,y = lcd.get_touch_pos()
+    print(f"x: {x}, y: {y}")
+
     pass

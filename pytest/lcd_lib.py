@@ -94,7 +94,7 @@ class LCD:
     def get_touch_pos(self):
         try:
             data = self.bus.read_i2c_block_data(CST816T_I2C_ADDRESS, 0x00, 7)
-            print("读取的数据: ", [hex(x) for x in data])  # 调试信息
+            # print("读取的数据: ", [hex(x) for x in data])  # 调试信息
             if len(data) < 7:
                 print("数据长度不正确")
                 return None, None
@@ -102,7 +102,7 @@ class LCD:
             # 解析触摸点数据
             x = data[4];
             y = data[6];
-            print(f"x: {x}, y: {y}")
+            # print(f"x: {x}, y: {y}")
             return x, y
         except Exception as e:
             print(f"读取触摸数据时出错: {e}")
