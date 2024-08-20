@@ -11,6 +11,7 @@ import terminalio
 import displayio
 import smbus2
 import time
+import cProfile
 
 # Starting in CircuitPython 9.x fourwire will be a seperate internal library
 # rather than a component of the displayio library
@@ -36,16 +37,16 @@ bus = smbus2.SMBus(1)  # 对于树莓派，通常使用总线1
 
 def read_touch_data():
     try:
-        data = bus.read_i2c_block_data(CST816T_I2C_ADDRESS, 0x00, 7)
-        print("读取的数据: ", [hex(x) for x in data])  # 调试信息
+        data = bus.read_i2c_block_data(CST816T_I2C_ADDRESS, 0x02, 7)
+        # print("读取的数据: ", [hex(x) for x in data])  # 调试信息
         if len(data) < 7:
             print("数据长度不正确")
             return None, None
         
         # 解析触摸点数据
-        x = data[4];
-        y = data[6];
-        print(f"x: {x}, y: {y}")
+        x = data[2];
+        y = data[4];
+        # print(f"x: {x}, y: {y}")
         return x, y
     except Exception as e:
         print(f"读取触摸数据时出错: {e}")
@@ -53,7 +54,7 @@ def read_touch_data():
 tft_cs = board.CE0
 tft_dc = board.D24
 
-display_bus = FourWire(spi, command=tft_dc, chip_select=tft_cs, reset=board.D9)#SPI初始化
+display_bus = FourWire(spi, command=tft_dc, chip_select=tft_cs, reset=board.D25,baudrate=8000000)#SPI初始化
 
 display = ST7789(display_bus, width=280, height=240, rowstart=20, rotation=90)
 
@@ -84,12 +85,27 @@ splash.append(text_group)
 
 # display.show(None)
 # def touch_thread():
-while True:
-    pass
-#     x, y = read_touch_data()
-#     if x is not None and y is not None:
-#         print(f"触摸点: ({x}, {y})")
-#     time.sleep(0.5)
+
+# print(f"Import specific module time: {(end_time - start_time)*1000} ms")
+def main():
+    count = 0
+    start_time = time.process_time()
+    while True:
+        count = count + 1
+        # x, y = read_touch_data()
+        # if x is not None and y is not None:
+        #     print(f"触摸点: ({x}, {y})")
+        # time.sleep(0.5)
+        end_time = time.process_time()
+        # if ((end_time-start_time)*1000 > 1000):
+        #     print(count)
+        #     count = 0
+        #     start_time = time.process_time()
+
+if __name__ == "__main__":
+    # cProfile.run('main()')
+    main()
+
 
 # while True:
 #     pass

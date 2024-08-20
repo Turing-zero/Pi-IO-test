@@ -62,6 +62,14 @@ void spi_module::transfer(uint8_t* tx_buf,uint8_t* rx_buf,int length){
     spi->transfer(tx_buf,rx_buf,length);
 }
 
+void spi_module::write(uint8_t* tx_buf,int length){
+    spi->write(tx_buf,length);
+}
+
+void spi_module::write_word(uint16_t* tx_buf,int length){
+    spi->writeWord(tx_buf,length);
+}
+
 void spi_module::transfer_word(uint16_t* tx_buf,uint16_t* rx_buf,int length){
     spi->transfer_word(tx_buf,rx_buf,length);
 }

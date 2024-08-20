@@ -44,8 +44,19 @@ namespace devices{
         "/dev/ttyAMA3",
         "/dev/ttyAMA4",
     };
-    
 };
+
+class gpio_module{
+    public:
+        gpio_module(int gpio_num,mraa::Dir dir);
+        ~gpio_module();
+        void write(int value);
+        void close();
+        int read();   
+    private:
+        mraa::Gpio *gpio;
+};
+
 class uart_module{
     public:
         uart_module(int baudrate = 115200,Uart_Port port=UART0,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
@@ -106,7 +117,9 @@ class spi_module{
         void close_spi();
         mraa::Spi_Mode get_mode(int spimode);  
         void transfer(uint8_t* tx_buf,uint8_t* rx_buf,int length);
+        void write(uint8_t* tx_buf,int length);
         void transfer_word(uint16_t* tx_buf,uint16_t* rx_buf,int length);
+        void write_word(uint16_t* tx_buf,int length);
     private:
         int _bus;
         int _cs;

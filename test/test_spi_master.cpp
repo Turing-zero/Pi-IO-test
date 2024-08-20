@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     if (argc > 1) {
     }
 
-    spi_module spi(0,0,3,500000,8,false);
+    spi_module spi(0,1,0,8000000,8,false);
     spi.open_spi();
     int index = 0;
     struct timespec start,end;
@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
             std::cout << (int)recv_data[i]<< " "; 
         }
         std::cout<<std::endl;
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
         index++;
     }
 

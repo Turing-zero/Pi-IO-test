@@ -46,3 +46,24 @@ int i2c_module::readBytesReg(uint8_t addr,uint8_t reg,uint8_t *data,int length){
 void i2c_module::close_i2c(){
     i2c->close();
 }
+
+extern "C"{
+    i2c_module* I2c_py(int bus){
+        return new i2c_module(bus);
+    }
+    void open_i2c_py(i2c_module*i2c_py){
+        i2c_py->open_i2c();
+    }
+    void write_i2c_py(i2c_module*i2c_py,uint8_t addr,uint8_t *data,int length){
+        i2c_py->write(addr,data,length);
+    }
+    int read_i2c_py(i2c_module*i2c_py,uint8_t addr,uint8_t *data,int length){
+        return i2c_py->read(addr,data,length);
+    }
+    int readbytes_i2c_py(i2c_module*i2c_py,uint8_t addr,uint8_t reg,uint8_t *data,int length){
+        return i2c_py->readBytesReg(addr,reg,data,length);
+    }
+    void I2c_delete(i2c_module*i2c_py){
+        delete i2c_py;
+    }
+}

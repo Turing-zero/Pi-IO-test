@@ -41,14 +41,6 @@ float get_voltage(uint16_t voltage){
 }
 
 int main() {
-    // 初始化 I2C
-    mraa::I2c* i2c = new mraa::I2c(0);
-
-    if (i2c == nullptr) {
-        std::cerr << "Failed to initialize I2C" << std::endl;
-        return -1;
-    }
-
     // 配置 ADS1115
     uint16_t config = CONFIG_OS_SINGLE |
                       CONFIG_MUX_SINGLE_0 |
@@ -57,9 +49,6 @@ int main() {
                       CONFIG_DR_128SPS |
                       CONFIG_COMP_QUE_DISABLE;
 
-    // writeRegister(i2c, ADS1115_CONFIG_REG, config);
-    // i2c_module _i2c(0);
-    // _i2c.open_i2c();
     Sensor_ADC sensor;
     sensor.open_sensor(0);
 
@@ -71,29 +60,13 @@ int main() {
     int count = 0;
     double cnt = 0;
     while(1){
-        // _i2c.write(ADS1115_ADDRESS,buffer,3);
-        // _i2c.readBytesReg(ADS1115_ADDRESS,ADS1115_CONVERSION_REG,buf,2);
-        // uint16_t result =(buf[0] << 8 | buf[1]);
-        // 读取转换结果
-        // uint16_t result = readRegister(i2c, ADS1115_CONVERSION_REG);
-        // 将 ADC 值转换为电压
-        // float voltage = get_voltage(result);
-        // 输出结果
-        // std::cout << "ADC Value: " << result << std::endl;
         float voltage = sensor.get_voltage(0,0);
-        // std::cout << "ADC Voltage: " << voltage << std::endl;
         count++;
         cnt+=abs(voltage - 1);
         if(count==1000){
-            // std::cout<<cnt/1000.0<<std::endl;
             cnt = 0;
             count=0;
         }
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-
-    // 清理
-    delete i2c;
-
     return 0;
 }
