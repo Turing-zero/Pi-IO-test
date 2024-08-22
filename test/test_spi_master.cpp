@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     int send_delay = 0;
     if (argc > 1) {
     }
-
+    // mraa::Gpio gpio();
     spi_module spi(0,1,0,8000000,8,false);
     spi.open_spi();
     int index = 0;
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
             std::cout << (int)recv_data[i]<< " "; 
         }
         std::cout<<std::endl;
-        std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(10));
         index++;
     }
 

@@ -25,7 +25,7 @@
 /* UART port */
 #define UART_PORT 0
 
-const char *dev_path = "/dev/ttyAMA4";
+const char *dev_path = "/dev/ttyAMA1";
 
 volatile sig_atomic_t flag = 1;
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     signal(SIGINT, sig_handler);
 
     int baudrate = 115200;
-    int send_delay = 10;
+    int send_delay = 1000;
     if (argc > 1) {
         baudrate = std::stoi(argv[1]);
         send_delay = std::stoi(argv[2]);

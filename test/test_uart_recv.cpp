@@ -25,7 +25,7 @@
 /* UART port */
 #define UART_PORT 0
 
-const char *dev_path = "/dev/ttyAMA2";
+const char *dev_path = "/dev/ttyAMA0";
 
 volatile sig_atomic_t flag = 1;
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
                 std::cout << "uart hit rate: " << (comm_status.success_rate) << std::endl;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     //! [Interesting]
 

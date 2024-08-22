@@ -1,7 +1,7 @@
 #include <signal.h>
 #include <rpi_lib.h>
 
-#define TX_RX_SWIO 38
+#define TX_RX_SWIO 40
 volatile sig_atomic_t flag = 1;
 
 void sig_handler(int signum) {
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         std::cout << "send_delay: " << send_delay << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    rs485_module rs485(baudrate,UART_DELAY,UART4,TX_RX_SWIO);
+    rs485_module rs485(baudrate,UART_DELAY,UART3,TX_RX_SWIO);
     rs485.open_rs485();
 
     int index = 0;
@@ -35,17 +35,24 @@ int main(int argc, char **argv) {
     while (flag) {
 
         // char tx_buf[] = {0xFF,0xFF,0xFD,0x00,0x01,0x07,0x00,0x02,0x84,0x00,0x04,0x00};//read data for dynamixel
-        // char tx_buf[] = {0xFF,0xFF,0xFD,0x00,0x01,0x03,0x00,0x08};//reboot
-        char tx_buf[] = {0xFF,0xFF,0xFD,0x00,0x02,0x09,0x00,0x03,0x40,0x00,0x01,0x00,0x00,0x00};//reg-write
-        char tx_buf_d[] = {0xFF,0xFF,0xFD,0x00,0x02,0x09,0x00,0x04,0x74,0x00,0x00,0x00,0x00,0x00};//reg-write
-        char tx_buf_a[] = {0xFF,0xFF,0xFD,0x00,0x02,0x03,0x00,0x05};//action
+        char tx_buf[] = {0xFF,0xFF,0xFD,0x00,0x02,0x03,0x00,0x08};//reboot
+        // char tx_buf[] = {0xFF,0xFF,0xFD,0x00,0x02,0x09,0x00,0x03,0x40,0x00,0x01,0x00,0x00,0x00};//reg-write
+        // char tx_buf_d[] = {0xFF,0xFF,0xFD,0x00,0x02,0x09,0x00,0x04,0x74,0x00,0x00,0x00,0x00,0x00};//reg-write
+        // char tx_buf_a[] = {0xFF,0xFF,0xFD,0x00,0x02,0x03,0x00,0x05};//action
 
         int before_crc_bits = sizeof(tx_buf);
         unsigned short CRC_result = rs485.update_crc(0,(unsigned char*)tx_buf,before_crc_bits);
         tx_buf[before_crc_bits] = CRC_result&0xff;
         tx_buf[before_crc_bits+1] = CRC_result>>8&0xff;
 
+        // std::cout << "recv str1: ";
+        // for(int i =0;i<before_crc_bits+2;++i){
+        //     std::cout<< int(tx_buf[i])<<" " ;
+        // }
+        // std::cout<<std::endl;
+
         rs485.send_485packet(tx_buf,before_crc_bits+2);
+        // rs485->send_485packet(tx_buf,10);
         char s[256] = "";
         int len= rs485.recv_485packet(s,25);
         std::cout << "recv str1: ";
@@ -54,27 +61,27 @@ int main(int argc, char **argv) {
         }
         std::cout<<std::endl;
 
-        int before_crc_bits_d = sizeof(tx_buf_d);
-        unsigned short CRC_result_d = rs485.update_crc(0,(unsigned char*)tx_buf_d,before_crc_bits_d);
-        tx_buf_d[before_crc_bits_d] = CRC_result_d&0xff;
-        tx_buf_d[before_crc_bits_d+1] = CRC_result_d>>8&0xff;
+        // int before_crc_bits_d = sizeof(tx_buf_d);
+        // unsigned short CRC_result_d = rs485.update_crc(0,(unsigned char*)tx_buf_d,before_crc_bits_d);
+        // tx_buf_d[before_crc_bits_d] = CRC_result_d&0xff;
+        // tx_buf_d[before_crc_bits_d+1] = CRC_result_d>>8&0xff;
 
-        rs485.send_485packet(tx_buf_d,before_crc_bits_d+2);
+        // rs485.send_485packet(tx_buf_d,before_crc_bits_d+2);
 
-        int before_crc_bits_a = sizeof(tx_buf_a);
-        unsigned short CRC_result_a = rs485.update_crc(0,(unsigned char*)tx_buf_a,before_crc_bits_a);
-        tx_buf_a[before_crc_bits_a] = CRC_result_a&0xff;
-        tx_buf_a[before_crc_bits_a+1] = CRC_result_a>>8&0xff;
+        // int before_crc_bits_a = sizeof(tx_buf_a);
+        // unsigned short CRC_result_a = rs485.update_crc(0,(unsigned char*)tx_buf_a,before_crc_bits_a);
+        // tx_buf_a[before_crc_bits_a] = CRC_result_a&0xff;
+        // tx_buf_a[before_crc_bits_a+1] = CRC_result_a>>8&0xff;
 
-        rs485.send_485packet(tx_buf_a,8+2);
+        // rs485.send_485packet(tx_buf_a,8+2);
 
-        char s1[256] = "";
-        len= rs485.recv_485packet(s1,25);
-        std::cout << "recv str2: ";
-        for(int i =0;i<len;++i){
-            std::cout<< int(s1[i])<<" " ;
-        }
-        std::cout<<std::endl;
+        // char s1[256] = "";
+        // len= rs485.recv_485packet(s1,25);
+        // std::cout << "recv str2: ";
+        // for(int i =0;i<len;++i){
+        //     std::cout<< int(s1[i])<<" " ;
+        // }
+        // std::cout<<std::endl;
 
         index++;
         std::this_thread::sleep_for(std::chrono::milliseconds(send_delay));

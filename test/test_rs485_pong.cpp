@@ -1,7 +1,7 @@
 #include <map>
 #include <signal.h>
 #include "rpi_lib.h"
-#define TX_RX_SWIO 40
+#define TX_RX_SWIO 36
 
 volatile sig_atomic_t flag = 1;
 
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    rs485_module rs485(baudrate,UART_DELAY,UART5,TX_RX_SWIO);
+    rs485_module rs485(baudrate,UART_DELAY,UART2,TX_RX_SWIO);
     rs485.open_rs485();
 
     struct COMM_STATUS {
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     while (flag) {
         char s[256] = "";
         int len=rs485.recv_485packet(s,25);
-        if (s[0] == 0xff) {
+        if (s[0] == 0xFF) {
             std::cout << "data: ";
             for(int i=0;i<len;++i)std::cout <<int(s[i])<<" ";
             std::cout << std::endl;
