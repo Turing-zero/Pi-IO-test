@@ -1,11 +1,11 @@
 #include "dynamixel2.0.h"
 
-void Dynamixel::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int control_pin){
+void Dynamixel_2::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int control_pin){
     dynamixel = new rs485_module(baudrate,uart_delay,port,control_pin);
     dynamixel->open_rs485();
 }
 
-int Dynamixel::reboot(int id,char* recv_buf){
+int Dynamixel_2::reboot(int id,char* recv_buf){
     //command
     char command[10] = {0xFF,0xFF,0xFD,0x00,0x02,0x03,0x00,0x08};
     command[4] = id;
@@ -22,12 +22,12 @@ int Dynamixel::reboot(int id,char* recv_buf){
     return len;
 }
 
-int Dynamixel::angle2hex(double angle){
+int Dynamixel_2::angle2hex(double angle){
     int step = 0xFFF/(M_PI*2);
     return angle*step;
 }
 
-char* Dynamixel::action_angle(int id,double angle){
+void Dynamixel_2::action_angle(int id,double angle){
     char recv_buf[256]="";
     //打开torque enable 才能控制舵机
     write(id,recv_buf,0x40,0x01);
@@ -37,7 +37,7 @@ char* Dynamixel::action_angle(int id,double angle){
     // write(id,recv_buf,0x40,0x00);
 }
 
-int Dynamixel::factory_reset(int id,char* recv_buf){
+int Dynamixel_2::factory_reset(int id,char* recv_buf){
 //     //command
     char command[11] = {0xFF,0xFF,0xFD,0x00,0x00,0x04,0x00,0x06,0x01};
     command[4] = id;
@@ -59,7 +59,7 @@ int Dynamixel::factory_reset(int id,char* recv_buf){
 无论设备的状态返回级别如何，状态包总是发送给 Ping 指令。
 当数据包ID字段(command[4])为0xFE（广播ID）时：所有设备按照其排列的顺序发送其状态数据包。
 */
-int Dynamixel::ping(int id,char* recv_buf){
+int Dynamixel_2::ping(int id,char* recv_buf){
     //command
     char command[10]={0xFF,0xFF,0xFD,0x00,0x00,0x03,0x00,0x01};
     command[4] = id;
@@ -76,7 +76,7 @@ int Dynamixel::ping(int id,char* recv_buf){
     return len;
 }
 
-int Dynamixel::read(int id,char* recv_buf,int address,int low_size,int high_size){
+int Dynamixel_2::read(int id,char* recv_buf,int address,int low_size,int high_size){
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF;
@@ -98,8 +98,12 @@ int Dynamixel::read(int id,char* recv_buf,int address,int low_size,int high_size
     }
     return len;
 }
-
-int Dynamixel::write(int id,char*recv_buf,int address,int data){
+/*
+TODO 理论上address作为起始地址，后续的地址内容都可以被赋值，举个例子假设address为0x40  0x40控制torque enable的，
+占两个字节  理论上传两个字节数据就可以了，假设传了四个字节的数据，那么后续的内容继承的赋值给0x40后续的寄存器，理论上0x40后续的
+寄存器都能被赋值，但因为代码data占用的大小问题，目前只支持address后面4个字节的赋值，后续需要赋值多位寄存器需要修改
+*/
+int Dynamixel_2::write(int id,char*recv_buf,int address,int data){
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF; 
@@ -124,6 +128,10 @@ int Dynamixel::write(int id,char*recv_buf,int address,int data){
     return len;
 }
 /*
+TODO 理论上address作为起始地址，后续的地址内容都可以被赋值，举个例子假设address为0x40  0x40控制torque enable的，
+占两个字节  理论上传两个字节数据就可以了，假设传了四个字节的数据，那么后续的内容继承的赋值给0x40后续的寄存器，理论上0x40后续的
+寄存器都能被赋值，但因为代码data占用的大小问题，目前只支持address后面4个字节的赋值，后续需要赋值多位寄存器需要修改
+
 注意:测试结果来看regwrite把数据写入舵机不会立即执行，要配合action指令一起使用
 与写指令类似，但同步特性得到改善的指令
 当收到指令包时，立即执行写入指令。
@@ -131,7 +139,7 @@ int Dynamixel::write(int id,char*recv_buf,int address,int data){
 注册写指令将指令包注册为待机状态，并将控制表注册指令设置为‘1’。
 当收到动作指令时，执行注册的数据包，并将控制表注册指令设置为‘0’。
 */
-int Dynamixel::regwrite(int id,char*recv_buf,int address,int data){
+int Dynamixel_2::regwrite(int id,char*recv_buf,int address,int data){
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF; 
@@ -160,7 +168,7 @@ int Dynamixel::regwrite(int id,char*recv_buf,int address,int data){
 当使用写指令控制多个设备时，第一个接收到数据包的设备和最后一个接收到数据包的设备的执行时间会存在差异。
 通过使用Reg Write和Action指令，可以同时操作多个设备。
 */
-int Dynamixel::action(int id,char* recv_buf){
+int Dynamixel_2::action(int id,char* recv_buf){
     //command
     char command[10]={0xFF,0xFF,0xFD,0x00,0x00,0x03,0x00,0x05};
     command[4] = id;
@@ -183,7 +191,7 @@ int Dynamixel::action(int id,char* recv_buf){
 清除指令仅在 DYNAMIXEL 停止时才适用
 如果无法清除错误或不满足清除条件，则错误仍未清除，状态包的错误字段中将显示结果失败 (0x01)
 */
-int Dynamixel::clear(int id,char* recv_buf,bool clear_err){
+int Dynamixel_2::clear(int id,char* recv_buf,bool clear_err){
     //command
     char command[15]={0xFF,0xFF,0xFD,0x00,0x00,0x08,0x00,0x10,0x01,0x44,0x58,0x4C,0x22};
     command[4]=id;
@@ -218,7 +226,7 @@ EERPOM中的所有数据
 剖面速度
 间接地址（DYNAMIXEL-P 系列除外）
 */
-int Dynamixel::control_table_backup(int id,char* recv_buf,bool backup_restore){
+int Dynamixel_2::control_table_backup(int id,char* recv_buf,bool backup_restore){
     //command
     char command[15]={0xFF,0xFF,0xFD,0x00,0x00,0x08,0x00,0x20,0x01,0x43,0x54,0x52,0x4C};
     command[4]=id;
@@ -245,7 +253,7 @@ int Dynamixel::control_table_backup(int id,char* recv_buf,bool backup_restore){
 目前所有同步读取的舵机数据都从recv_buf一个数组内返回，未进行解包
 id_group是存储所有需要读取的舵机的id，size是读取舵机的数量，address是需要读取数据的地址，low_size是读取的低位地址数据的字节数。high_size是读取的高位地址数据的字节数。
 */
-int Dynamixel::sync_read(char* recv_buf,int*id_group,int size,int address,int low_size,int high_size){
+int Dynamixel_2::sync_read(char* recv_buf,int*id_group,int size,int address,int low_size,int high_size){
     //command
     int high_address = address>>8&0xFF;
     int low_address = address&0xFF;
@@ -279,7 +287,9 @@ int Dynamixel::sync_read(char* recv_buf,int*id_group,int size,int address,int lo
 }
 
 /*
-TODO  巨量舵机一起用一个指令包控的情况下可能需要用到高位字节
+TODO 理论上address作为起始地址，后续的地址内容都可以被赋值，举个例子假设address为0x40  0x40控制torque enable的，
+占两个字节  理论上传两个字节数据就可以了，假设传了四个字节的数据，那么后续的内容继承的赋值给0x40后续的寄存器，理论上0x40后续的
+寄存器都能被赋值，但因为代码data占用的大小问题，目前只支持address后面8个字节的赋值，后续需要赋值多位寄存器需要修改
 
 使用一个指令包同时控制多个设备的指令
 数据的地址和数据长度必须全部相同。
@@ -288,7 +298,7 @@ TODO  巨量舵机一起用一个指令包控的情况下可能需要用到高�
 id_group是存需要操作舵机的id，data是需要写入的数据，size是有几个舵机需要操作，address是操作地址，lowsize是数据低位的字节，hignsize是数据高位字节
 */
 
-void Dynamixel::sync_write(int*id_group,long int*data,int size,int address,int low_size,int high_size){
+void Dynamixel_2::sync_write(int*id_group,long int*data,int size,int address,int low_size,int high_size){
     //command
     int high_address = address>>8&0xFF;
     int low_address = address&0xFF;
@@ -329,7 +339,7 @@ void Dynamixel::sync_write(int*id_group,long int*data,int size,int address,int l
 数据包 ID 字段：0xFE（广播 ID）
 id_group是存需要操作舵机的id，size是有几个舵机需要操作，address是操作地址，lowsize是数据低位的字节，hignsize是数据高位字节，recv_buf是存接收到的信息
 */
-int Dynamixel::bulk_read(char* recv_buf,int*id_group,int*address,int*low_size,int*high_size,int size){
+int Dynamixel_2::bulk_read(char* recv_buf,int*id_group,int*address,int*low_size,int*high_size,int size){
     //command
     char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x92};
     int before_id_bit = 8;
@@ -361,7 +371,9 @@ int Dynamixel::bulk_read(char* recv_buf,int*id_group,int*address,int*low_size,in
 }
 
 /*
-TODO  大量舵机一起用一个指令包控的情况下可能需要用到高位字节,高字节没有测试
+TODO 理论上address作为起始地址，后续的地址内容都可以被赋值，举个例子假设address为0x40  0x40控制torque enable的，
+占两个字节  理论上传两个字节数据就可以了，假设传了四个字节的数据，那么后续的内容继承的赋值给0x40后续的寄存器，理论上0x40后续的
+寄存器都能被赋值，但因为代码data占用的大小问题，目前只支持address后面8个字节的赋值，后续需要赋值多位寄存器需要修改
 
 与同步写入类似，这是使用一个指令包同时控制多个设备的指令
 即使每个设备的数据地址和数据长度不完全相同，也可以使用该指令。
@@ -370,7 +382,7 @@ TODO  大量舵机一起用一个指令包控的情况下可能需要用到高�
 数据包 ID 字段：0xFE（广播 ID）
 id_group是存需要操作舵机的id，data是需要写入的数据，size是有几个舵机需要操作，address是操作地址，lowsize是数据低位的字节，hignsize是数据高位字节
 */
-void Dynamixel::bulk_write(int*id_group,long int*data,int*address,int*low_size,int*high_size,int size){
+void Dynamixel_2::bulk_write(int*id_group,long int*data,int*address,int*low_size,int*high_size,int size){
     //command
     char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x93};
     int before_id_bit = 8;

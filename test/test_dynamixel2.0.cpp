@@ -1,7 +1,7 @@
 #include "dynamixel2.0.h"
 
 int main(){
-    Dynamixel device;
+    Dynamixel_2 device;
     device.open_dynamixel(1000000,200,UART2,40);
     char recv_buf[256]="";
     // int len= device.reboot(1,recv_buf);

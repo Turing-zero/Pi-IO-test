@@ -8,5 +8,5 @@ foreach(test_file ${TEST_FILES})
     string( REPLACE ".cpp" "" test_name ${test_file_name} )
 
     add_executable(${test_name} ${test_file_name} ${SHARED_SOURCE_FILES})
-    target_link_libraries(${test_name} mraa stdc++)
+    target_link_libraries(${test_name} mraa stdc++ pigpio)
 endforeach()

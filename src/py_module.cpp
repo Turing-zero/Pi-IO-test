@@ -1,5 +1,7 @@
 #include "debugger.h"
 #include "rpi_lib.h"
+#include "dynamixel2.0.h"
+#include "dynamixel1.0.h"
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
@@ -74,4 +76,10 @@ PYBIND11_MODULE(debugger, m) {
         .def("readByte", &i2c_module::readByte)
         .def("readBytesReg", &i2c_module::readBytesReg)
         .def("close_i2c", &i2c_module::close_i2c);
+
+    //dynamixel2.0
+    py::class_<Dynamixel_1>(m,"Dynamixel_1")
+        .def(py::init())
+        .def("open_dynamixel", &Dynamixel_1::open_dynamixel)
+        .def("action_angle", &Dynamixel_1::action_angle);
 }
