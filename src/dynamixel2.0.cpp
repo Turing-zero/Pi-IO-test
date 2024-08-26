@@ -16,7 +16,11 @@ int Dynamixel_2::reboot(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,10);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -48,8 +52,12 @@ int Dynamixel_2::factory_reset(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,11);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -70,8 +78,12 @@ int Dynamixel_2::ping(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,10);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -93,8 +105,12 @@ int Dynamixel_2::read(int id,char* recv_buf,int address,int low_size,int high_si
     //action and recv state
     dynamixel->send_485packet(command,14);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -122,8 +138,12 @@ int Dynamixel_2::write(int id,char*recv_buf,int address,int data){
     //action and recv state
     dynamixel->send_485packet(command,16);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -158,8 +178,12 @@ int Dynamixel_2::regwrite(int id,char*recv_buf,int address,int data){
     //action and recv state
     dynamixel->send_485packet(command,16);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -179,8 +203,12 @@ int Dynamixel_2::action(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,10);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -208,8 +236,12 @@ int Dynamixel_2::clear(int id,char* recv_buf,bool clear_err){
     //action and recv state
     dynamixel->send_485packet(command,15);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -238,8 +270,12 @@ int Dynamixel_2::control_table_backup(int id,char* recv_buf,bool backup_restore)
     //action and recv state
     dynamixel->send_485packet(command,15);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
-        len = dynamixel->recv_485packet(recv_buf,25);
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
 }
@@ -277,7 +313,11 @@ int Dynamixel_2::sync_read(char* recv_buf,int*id_group,int size,int address,int 
     int totallen = 0;
     int count=0;
     for(int i=0;i<size;++i){
+        std::time_t start_time = std::time(nullptr);
         while(len==0){
+            std::time_t end_time = std::time(nullptr);
+            double elapsed_time = std::difftime(end_time, start_time);
+            if(elapsed_time>=0.5) break;
             len = dynamixel->recv_485packet(recv_buf+totallen,1024);
         }
         totallen+=len;
@@ -361,7 +401,11 @@ int Dynamixel_2::bulk_read(char* recv_buf,int*id_group,int*address,int*low_size,
     int totallen = 0;
     int count=0;
     for(int i=0;i<size;++i){
+        std::time_t start_time = std::time(nullptr);
         while(len==0){
+            std::time_t end_time = std::time(nullptr);
+            double elapsed_time = std::difftime(end_time, start_time);
+            if(elapsed_time>=0.5) break;
             len = dynamixel->recv_485packet(recv_buf+totallen,1024);
         }
         totallen+=len;

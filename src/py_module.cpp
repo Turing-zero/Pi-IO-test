@@ -77,9 +77,25 @@ PYBIND11_MODULE(debugger, m) {
         .def("readBytesReg", &i2c_module::readBytesReg)
         .def("close_i2c", &i2c_module::close_i2c);
 
-    //dynamixel2.0
+    //dynamixel1.0
     py::class_<Dynamixel_1>(m,"Dynamixel_1")
         .def(py::init())
         .def("open_dynamixel", &Dynamixel_1::open_dynamixel)
-        .def("action_angle", &Dynamixel_1::action_angle);
+        .def("action_angle", &Dynamixel_1::action_angle)
+        .def("ping", &Dynamixel_1::ping)
+        .def("read", &Dynamixel_1::read)
+        .def("write", &Dynamixel_1::write)
+        .def("regwrite", &Dynamixel_1::regwrite)
+        .def("action", &Dynamixel_1::action)
+        .def("bulk_read", &Dynamixel_1::bulk_read)
+        .def("sync_write", &Dynamixel_1::sync_write)
+        .def("reboot", &Dynamixel_1::reboot)
+        .def("factory_reset", &Dynamixel_1::factory_reset)
+        .def("get_message", &Dynamixel_1::get_message);
+
+    //dynamixel2.0
+    py::class_<Dynamixel_2>(m,"Dynamixel_2")
+        .def(py::init())
+        .def("open_dynamixel", &Dynamixel_2::open_dynamixel)
+        .def("action_angle", &Dynamixel_2::action_angle);
 }

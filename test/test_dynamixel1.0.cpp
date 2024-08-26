@@ -31,11 +31,12 @@ int main(){
     int address[2]={0x18,0x18};
     int data_size[2]={0x01,0x01};
     len = device.bulk_read(recv_buf,id,address,data_size,2);
+    // len = device.reboot(1,recv_buf);
     for(int i=0;i<len;++i){
         std::cout<<(int)recv_buf[i]<<" ";
     }
     std::cout << std::endl;
 
-    device.action_angle(1,3.14);
+    // device.action_angle(1,3.14);
     return 0;
 }

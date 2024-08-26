@@ -1,4 +1,5 @@
 #include "dynamixel1.0.h"
+#include <cmath>
 
 void Dynamixel_1::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int control_pin){
     dynamixel = new rs485_module(baudrate,uart_delay,port,control_pin);
@@ -18,7 +19,11 @@ int Dynamixel_1::reboot(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,6);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -37,7 +42,11 @@ int Dynamixel_1::factory_reset(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,6);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -57,7 +66,11 @@ int Dynamixel_1::ping(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,6);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -78,7 +91,11 @@ int Dynamixel_1::read(int id,char* recv_buf,int address,int size){
     //action and recv state
     dynamixel->send_485packet(command,8);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0&&id!=0xFE){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -100,7 +117,11 @@ int Dynamixel_1::write(int id,char* recv_buf,int address,int data){
     //action and recv state
     dynamixel->send_485packet(command,9);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0&&id!=0xFE){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -122,7 +143,11 @@ int Dynamixel_1::regwrite(int id,char* recv_buf,int address,int data){
     //action and recv state
     dynamixel->send_485packet(command,9);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0&&id!=0xFE){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -141,7 +166,11 @@ int Dynamixel_1::action(int id,char* recv_buf){
     //action and recv state
     dynamixel->send_485packet(command,6);
     int len = 0;
+    std::time_t start_time = std::time(nullptr);
     while(len==0&&id!=0xFE){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
         len=dynamixel->recv_485packet(recv_buf,25);
     }
     return len;
@@ -206,7 +235,11 @@ int Dynamixel_1::bulk_read(char* recv_buf,int*id_group,int*address,int*data_size
     int totallen = 0;
     // int count=0;
     for(int i=0;i<size;++i){
+        std::time_t start_time = std::time(nullptr);
         while(len==0){
+            std::time_t end_time = std::time(nullptr);
+            double elapsed_time = std::difftime(end_time, start_time);
+            if(elapsed_time>=0.5) break;
             len = dynamixel->recv_485packet(recv_buf+totallen,1024);
         }
         totallen+=len;
