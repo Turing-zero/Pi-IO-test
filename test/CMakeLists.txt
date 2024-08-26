@@ -14,12 +14,13 @@ if(BUILD_IO_TEST)
 endif()
 
 if(BUILD_DEVICE_TEST)
+    message(STATUS "Building device tests")
     file(GLOB TEST_DEVICE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp)
     list(FILTER TEST_DEVICE_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
-
-    foreach(test_file ${TEST_FILES})
-        get_filename_component(test_name ${test_file} NAME_WE)
-        add_executable(${test_name} ${test_file_name} ${SHARED_SOURCE_FILES})
+    
+    foreach(test_device_file ${TEST_DEVICE_FILES})
+        get_filename_component(test_name ${test_device_file} NAME_WE)
+        add_executable(${test_name} ${test_device_file} ${SHARED_SOURCE_FILES})
         target_link_libraries(${test_name} mraa stdc++)
     endforeach()
 endif()
