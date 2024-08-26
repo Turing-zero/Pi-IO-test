@@ -16,11 +16,9 @@ class Dynamixel_1{
         int bulk_read(char* recv_buf,int*id_group,int*address,int*data_size,int size);
         void sync_write(int*id_group,long int*data,int size,int address,int datasize);
         int reboot(int id,char* recv_buf);
-        char* get_message(){return message;};
     private:
         int angle2hex(double angle);
         rs485_module *dynamixel;  
-        char message[1024];
 };
 
 #endif

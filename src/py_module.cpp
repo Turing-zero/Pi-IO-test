@@ -3,6 +3,7 @@
 #include "dynamixel2.0.h"
 #include "dynamixel1.0.h"
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 PYBIND11_MODULE(debugger, m) {
@@ -45,7 +46,11 @@ PYBIND11_MODULE(debugger, m) {
         .def(py::init<int, Uart_Port, int, mraa::UartParity, int, bool, bool>())
         .def("open_uart", &uart_module::open_uart)
         .def("close_uart", &uart_module::close_uart)
-        .def("send_packet", &uart_module::send_packet)
+        .def("send_packet",[](uart_module &self,py::array_t<char> packet,int length){
+            py::buffer_info buf = packet.request();
+            char* ptr = (char*)buf.ptr;
+            self.send_packet(ptr,length);
+            },py::arg("packet"),py::arg("length"))
         .def("recv_packet", &uart_module::recv_packet);
 
     // rs485
@@ -53,8 +58,16 @@ PYBIND11_MODULE(debugger, m) {
         .def(py::init<int, int, Uart_Port, int, int, mraa::UartParity, int, bool, bool>())
         .def("open_rs485", &rs485_module::open_rs485)
         .def("close_rs485", &rs485_module::close_rs485)
-        .def("send_485packet", &rs485_module::send_485packet)
-        .def("recv_485packet", &rs485_module::recv_485packet);
+        .def("send_485packet",[](rs485_module &self,py::array_t<char> packet,int length){
+            py::buffer_info buf = packet.request();
+            char* ptr = (char*)buf.ptr;
+            self.send_485packet(ptr,length);
+            },py::arg("packet"),py::arg("length"))
+        .def("recv_485packet",[](rs485_module &self,py::array_t<char> packet,int length){
+            py::buffer_info buf = packet.request();
+            char* ptr = (char*)buf.ptr;
+            self.recv_485packet(ptr,length);
+            },py::arg("packet"),py::arg("length"));
 
     // spi
     py::class_<spi_module>(m, "spi_module")
@@ -83,15 +96,32 @@ PYBIND11_MODULE(debugger, m) {
         .def("open_dynamixel", &Dynamixel_1::open_dynamixel)
         .def("action_angle", &Dynamixel_1::action_angle)
         .def("ping", &Dynamixel_1::ping)
-        .def("read", &Dynamixel_1::read)
+        .def("read",[](Dynamixel_1 &self,int id,py::array_t<char> recv_buf,int address,int size){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.read(id,ptr,address,size);
+            },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("size"))
         .def("write", &Dynamixel_1::write)
         .def("regwrite", &Dynamixel_1::regwrite)
         .def("action", &Dynamixel_1::action)
         .def("bulk_read", &Dynamixel_1::bulk_read)
-        .def("sync_write", &Dynamixel_1::sync_write)
-        .def("reboot", &Dynamixel_1::reboot)
-        .def("factory_reset", &Dynamixel_1::factory_reset)
-        .def("get_message", &Dynamixel_1::get_message);
+        .def("sync_write",[](Dynamixel_1 &self,py::array_t<int> id_group,py::array_t<long int> data,int size,int address,int datasize){
+            py::buffer_info ids = id_group.request();
+            py::buffer_info datas = data.request();
+            int* idptr = (int*)ids.ptr;
+            long int* dataptr = (long int*)datas.ptr;
+            self.sync_write(idptr,dataptr,size,address,datasize);
+            },py::arg("id_group"),py::arg("data"),py::arg("size"),py::arg("address"),py::arg("datasize"))
+        .def("reboot",[](Dynamixel_1 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.reboot(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("factory_reset",[](Dynamixel_1 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.factory_reset(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"));
 
     //dynamixel2.0
     py::class_<Dynamixel_2>(m,"Dynamixel_2")

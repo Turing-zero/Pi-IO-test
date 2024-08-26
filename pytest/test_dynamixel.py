@@ -34,7 +34,14 @@ test.open_dynamixel(baudrate,uart_delay,uart_port,control_pin)
 # test.action_angle(1,3.14)
 # data_array = np.array([""]*256)
 
-data_array = ""#np.array()
-size = test.reboot(1,data_array)
+
+id_group = np.array([1,2],dtype=np.int32)
+data = np.array([1,1],dtype=np.int32)
+
+recv_buf = np.array([0,0,0,0,0,0,0,0,0,0],dtype=np.uint8)
+size = test.read(1,recv_buf,0x18,1)
+print(recv_buf)
+test.sync_write(id_group,data,2,0x18,1)
+size = test.read(1,recv_buf,0x18,1)
 # dd = test.get_message()
-print(len(data_array))
+print(recv_buf)

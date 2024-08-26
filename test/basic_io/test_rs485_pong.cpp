@@ -1,7 +1,7 @@
 #include <map>
 #include <signal.h>
 #include "lib_io.h"
-#define TX_RX_SWIO 36
+#define TX_RX_SWIO 40
 
 volatile sig_atomic_t flag = 1;
 
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         std::cout << "baudrate: " << baudrate << std::endl;
         std::cout << "uart_delay: " << UART_DELAY << std::endl;
     }
-    rs485_module rs485(baudrate,UART_DELAY,UART2,TX_RX_SWIO);
+    rs485_module rs485(baudrate,UART_DELAY,UART3,TX_RX_SWIO);
     rs485.open_rs485();
 
     struct COMM_STATUS {
