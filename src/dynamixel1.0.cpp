@@ -8,7 +8,7 @@ void Dynamixel_1::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int 
 
 int Dynamixel_1::reboot(int id,char* recv_buf){
     //command
-    char command[6] = {0xFF,0xFF,0x00,0x02,0x08};
+    char command[6] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x02,(char)0x08};
     command[2] = id;
     int CKSM = 0;
     for(int i = 2;i<5;++i){
@@ -31,7 +31,7 @@ int Dynamixel_1::reboot(int id,char* recv_buf){
 
 int Dynamixel_1::factory_reset(int id,char* recv_buf){
     //command
-    char command[6] = {0xFF,0xFF,0x00,0x02,0x06};
+    char command[6] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x02,(char)0x06};
     command[2] = id;
     int CKSM = 0;
     for(int i = 2;i<5;++i){
@@ -55,7 +55,7 @@ int Dynamixel_1::factory_reset(int id,char* recv_buf){
 
 int Dynamixel_1::ping(int id,char* recv_buf){
     //command
-    char command[6] = {0xFF,0xFF,0x00,0x02,0x01};
+    char command[6] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x02,(char)0x01};
     command[2] = id;
     int CKSM = 0;
     for(int i = 2;i<5;++i){
@@ -78,7 +78,7 @@ int Dynamixel_1::ping(int id,char* recv_buf){
 
 int Dynamixel_1::read(int id,char* recv_buf,int address,int size){
     //command
-    char command[8] = {0xFF,0xFF,0x00,0x04,0x02};
+    char command[8] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x04,(char)0x02};
     command[2] = id;
     command[5] = address;
     command[6] = size;
@@ -103,7 +103,7 @@ int Dynamixel_1::read(int id,char* recv_buf,int address,int size){
 
 int Dynamixel_1::write(int id,char* recv_buf,int address,int data){
     //command
-    char command[9] = {0xFF,0xFF,0x00,0x05,0x03};
+    char command[9] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x05,(char)0x03};
     command[2] = id;
     command[5] = address;
     command[6] = data&0xFF;
@@ -129,7 +129,7 @@ int Dynamixel_1::write(int id,char* recv_buf,int address,int data){
 
 int Dynamixel_1::regwrite(int id,char* recv_buf,int address,int data){
     //command
-    char command[9] = {0xFF,0xFF,0x00,0x05,0x04};
+    char command[9] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x05,(char)0x04};
     command[2] = id;
     command[5] = address;
     command[6] = data&0xFF;
@@ -155,7 +155,7 @@ int Dynamixel_1::regwrite(int id,char* recv_buf,int address,int data){
 
 int Dynamixel_1::action(int id,char* recv_buf){
     //command
-    char command[6] = {0xFF,0xFF,0x00,0x02,0x05};
+    char command[6] = {(char)0xFF,(char)0xFF,(char)0x00,(char)0x02,(char)0x05};
     command[2] = id;
     int CKSM = 0;
     for(int i = 2;i<5;++i){
@@ -185,7 +185,7 @@ TODO 理论上address作为起始地址，后续的地址内容都可以被赋�
 */
 void Dynamixel_1::sync_write(int*id_group,long int*data,int size,int address,int datasize){
     //command
-    char command[256] = {0xFF,0xFF,0xFE,0x00,0x83};
+    char command[256] = {(char)0xFF,(char)0xFF,(char)0xFE,(char)0x00,(char)0x83};
     command[5] = address;
     command[6] = datasize;
     int before_id_bit =7;
@@ -211,7 +211,7 @@ void Dynamixel_1::sync_write(int*id_group,long int*data,int size,int address,int
 
 int Dynamixel_1::bulk_read(char* recv_buf,int*id_group,int*address,int*data_size,int size){
     //command
-    char command[256]={0xFF,0xFF,0xFE,0x00,0x92,0x00};
+    char command[256]={(char)0xFF,(char)0xFF,(char)0xFE,(char)0x00,(char)0x92,(char)0x00};
     int before_id_bit = 6;
     for(int i=0;i<size;++i){
         // command[before_id_bit+(i-before_id_bit)*5]=id_group[i-before_id_bit];

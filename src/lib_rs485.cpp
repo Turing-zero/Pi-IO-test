@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 rs485_module::rs485_module(int baudrate,int uart_delay ,Uart_Port port,int sw_gpio,int databyte,mraa::UartParity parity,int stopbits,bool xonxoff,bool rtscts):uart_module(baudrate,port,databyte,parity,stopbits,xonxoff,rtscts){
     _Rs_SwPort = sw_gpio;

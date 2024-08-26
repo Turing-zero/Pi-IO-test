@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 #include "touchscreen.h"
 
 #define REG  0x02

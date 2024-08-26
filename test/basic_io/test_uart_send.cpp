@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         gpio->write(1);
         if(index & 0xff==0xff)packet_count++;
         int max_bytes = 10;
-        char tx_buf[5] = {0xff};
+        char tx_buf[5] = {(char)0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
         tx_buf[2] = (index >> 8) & 0xff;

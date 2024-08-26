@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 from src.can_mcp2515 import CAN_MCP2515
 import numpy as np
 import time

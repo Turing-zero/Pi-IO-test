@@ -1,6 +1,6 @@
 #ifndef __DEBUGGER__
 #define __DEBUGGER__
-#include "rpi_lib.h"
+#include "lib_io.h"
 #include "rocker.h"
 #include "button.h"
 

@@ -1,6 +1,6 @@
 #ifndef __SENSOR_ADC__
 #define __SENSOR_ADC__
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 // 寄存器地址
 #define READ_REG 0x00

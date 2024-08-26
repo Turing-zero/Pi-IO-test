@@ -1,12 +1,25 @@
-file(GLOB TEST_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp
-)
-list(FILTER SHARED_SOURCE_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
+option(BUILD_IO_TEST "test io" OFF)
+option(BUILD_DEVICE_TEST "test device" ON)
 
-foreach(test_file ${TEST_FILES})
-    file(RELATIVE_PATH test_file_name ${CMAKE_CURRENT_SOURCE_DIR} ${test_file})
-    string( REPLACE ".cpp" "" test_name ${test_file_name} )
+if(BUILD_IO_TEST)
+    message(STATUS "Building IO tests")
+    file(GLOB TEST_IO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/basic_io/test_*.cpp)
+    list(FILTER TEST_IO_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
 
-    add_executable(${test_name} ${test_file_name} ${SHARED_SOURCE_FILES})
-    target_link_libraries(${test_name} mraa stdc++ pigpio)
-endforeach()
+    foreach(test_io_file ${TEST_IO_FILES})
+        get_filename_component(test_name ${test_io_file} NAME_WE)
+        add_executable(${test_name} ${test_io_file} ${SHARED_SOURCE_FILES})
+        target_link_libraries(${test_name} mraa stdc++)
+    endforeach()
+endif()
+
+if(BUILD_DEVICE_TEST)
+    file(GLOB TEST_DEVICE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp)
+    list(FILTER TEST_DEVICE_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
+
+    foreach(test_file ${TEST_FILES})
+        get_filename_component(test_name ${test_file} NAME_WE)
+        add_executable(${test_name} ${test_file_name} ${SHARED_SOURCE_FILES})
+        target_link_libraries(${test_name} mraa stdc++)
+    endforeach()
+endif()

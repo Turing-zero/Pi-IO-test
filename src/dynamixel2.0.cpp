@@ -7,7 +7,7 @@ void Dynamixel_2::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int 
 
 int Dynamixel_2::reboot(int id,char* recv_buf){
     //command
-    char command[10] = {0xFF,0xFF,0xFD,0x00,0x02,0x03,0x00,0x08};
+    char command[10] = {(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x02,(char)0x03,(char)0x00,(char)0x08};
     command[4] = id;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,8);
     command[8] = CRC_result&0xff;
@@ -43,7 +43,7 @@ void Dynamixel_2::action_angle(int id,double angle){
 
 int Dynamixel_2::factory_reset(int id,char* recv_buf){
 //     //command
-    char command[11] = {0xFF,0xFF,0xFD,0x00,0x00,0x04,0x00,0x06,0x01};
+    char command[11] = {(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x04,(char)0x00,(char)0x06,(char)0x01};
     command[4] = id;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,9);
     command[9] = CRC_result&0xff;
@@ -69,7 +69,7 @@ int Dynamixel_2::factory_reset(int id,char* recv_buf){
 */
 int Dynamixel_2::ping(int id,char* recv_buf){
     //command
-    char command[10]={0xFF,0xFF,0xFD,0x00,0x00,0x03,0x00,0x01};
+    char command[10]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x03,(char)0x00,(char)0x01};
     command[4] = id;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,8);
     command[8] = CRC_result&0xff;
@@ -92,7 +92,7 @@ int Dynamixel_2::read(int id,char* recv_buf,int address,int low_size,int high_si
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF;
-    char command[14]={0xFF,0xFF,0xFD,0x00,0x00,0x07,0x00,0x02,0x84,0x00,0x04,0x00};
+    char command[14]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x07,(char)0x00,(char)0x02,(char)0x84,(char)0x00,(char)0x04,(char)0x00};
     command[4] = id;
     command[8] = low_address;
     command[9] = high_address;
@@ -123,7 +123,7 @@ int Dynamixel_2::write(int id,char*recv_buf,int address,int data){
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF; 
-    char command[16]={0xFF,0xFF,0xFD,0x00,0x00,0x09,0x00,0x03,0x74,0x00,0x00,0x02,0x00,0x00};
+    char command[16]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x09,(char)0x00,(char)0x03,(char)0x74,(char)0x00,(char)0x00,(char)0x02,(char)0x00,(char)0x00};
     command[4] = id;
     command[8] = low_address;
     command[9] = high_address;
@@ -163,7 +163,7 @@ int Dynamixel_2::regwrite(int id,char*recv_buf,int address,int data){
     //command
     int low_address = address&0xFF;
     int high_address = address>>8&0xFF; 
-    char command[16]={0xFF,0xFF,0xFD,0x00,0x00,0x09,0x00,0x04,0x74,0x00,0x00,0x02,0x00,0x00};
+    char command[16]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x09,(char)0x00,(char)0x04,(char)0x74,(char)0x00,(char)0x00,(char)0x02,(char)0x00,(char)0x00};
     command[4] = id;
     command[8] = low_address;
     command[9] = high_address;
@@ -194,7 +194,7 @@ int Dynamixel_2::regwrite(int id,char*recv_buf,int address,int data){
 */
 int Dynamixel_2::action(int id,char* recv_buf){
     //command
-    char command[10]={0xFF,0xFF,0xFD,0x00,0x00,0x03,0x00,0x05};
+    char command[10]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x03,(char)0x00,(char)0x05};
     command[4] = id;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,8);
     command[8] = CRC_result&0xFF;
@@ -221,7 +221,7 @@ int Dynamixel_2::action(int id,char* recv_buf){
 */
 int Dynamixel_2::clear(int id,char* recv_buf,bool clear_err){
     //command
-    char command[15]={0xFF,0xFF,0xFD,0x00,0x00,0x08,0x00,0x10,0x01,0x44,0x58,0x4C,0x22};
+    char command[15]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x08,(char)0x00,(char)0x10,(char)0x01,(char)0x44,(char)0x58,(char)0x4C,(char)0x22};
     command[4]=id;
     if(clear_err){
         command[8]=0x02;
@@ -260,7 +260,7 @@ EERPOM中的所有数据
 */
 int Dynamixel_2::control_table_backup(int id,char* recv_buf,bool backup_restore){
     //command
-    char command[15]={0xFF,0xFF,0xFD,0x00,0x00,0x08,0x00,0x20,0x01,0x43,0x54,0x52,0x4C};
+    char command[15]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x08,(char)0x00,(char)0x20,(char)0x01,(char)0x43,(char)0x54,(char)0x52,(char)0x4C};
     command[4]=id;
     if(backup_restore) command[8]=0x02;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,13);
@@ -293,7 +293,7 @@ int Dynamixel_2::sync_read(char* recv_buf,int*id_group,int size,int address,int 
     //command
     int high_address = address>>8&0xFF;
     int low_address = address&0xFF;
-    char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x82,0x84,0x00,0x04,0x00};
+    char command[256]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0xFE,(char)0x09,(char)0x00,(char)0x82,(char)0x84,(char)0x00,(char)0x04,(char)0x00};
     int before_id_bit = 12;
     for(int i=before_id_bit;i<before_id_bit+size;++i){
         command[i]=id_group[i-before_id_bit];
@@ -342,7 +342,7 @@ void Dynamixel_2::sync_write(int*id_group,long int*data,int size,int address,int
     //command
     int high_address = address>>8&0xFF;
     int low_address = address&0xFF;
-    char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x83,0x00,0x00,0x00,0x00};
+    char command[256]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0xFE,(char)0x09,(char)0x00,(char)0x83,(char)0x00,(char)0x00,(char)0x00,(char)0x00};
     int before_id_bit = 12;
     command[8]=low_address;
     command[9]=high_address;
@@ -381,7 +381,7 @@ id_group是存需要操作舵机的id，size是有几个舵机需要操作，add
 */
 int Dynamixel_2::bulk_read(char* recv_buf,int*id_group,int*address,int*low_size,int*high_size,int size){
     //command
-    char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x92};
+    char command[256]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0xFE,(char)0x09,(char)0x00,(char)0x92};
     int before_id_bit = 8;
     for(int i=before_id_bit;i<before_id_bit+size;++i){
         command[before_id_bit+(i-before_id_bit)*5]=id_group[i-before_id_bit];
@@ -428,7 +428,7 @@ id_group是存需要操作舵机的id，data是需要写入的数据，size是�
 */
 void Dynamixel_2::bulk_write(int*id_group,long int*data,int*address,int*low_size,int*high_size,int size){
     //command
-    char command[256]={0xFF,0xFF,0xFD,0x00,0xFE,0x09,0x00,0x93};
+    char command[256]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0xFE,(char)0x09,(char)0x00,(char)0x93};
     int before_id_bit = 8;
     for(int i=0;i<size;++i){
         command[before_id_bit++]=id_group[i];

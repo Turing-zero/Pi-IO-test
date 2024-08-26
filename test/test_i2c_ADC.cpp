@@ -1,7 +1,7 @@
 #include "mraa.hpp"
 #include <iostream>
 #include <unistd.h>
-#include "rpi_lib.h"
+#include "lib_io.h"
 #include "sensor_adc.h"
 
 #define ADS1115_ADDRESS 0x48

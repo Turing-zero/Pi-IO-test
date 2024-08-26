@@ -1,6 +1,6 @@
 #ifndef __ROCKER__
 #define __ROCKER__
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 #define BUFFER_SIZE 2
 #define REF_V 4.096

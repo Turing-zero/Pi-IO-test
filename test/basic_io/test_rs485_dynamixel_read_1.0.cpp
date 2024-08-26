@@ -1,5 +1,5 @@
 #include <signal.h>
-#include <rpi_lib.h>
+#include <lib_io.h>
 #define TX_RX_SWIO 40
 
 volatile sig_atomic_t flag = 1;
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     int count = 0;
 
     while (flag) {
-        char tx_buf[8]={0xFF,0xFF,0x01,0x04,0x02,0x2B,0x01,0xCC}; //protocal 1.0
+        char tx_buf[8]={(char)0xFF,(char)0xFF,(char)0x01,(char)0x04,(char)0x02,(char)0x2B,(char)0x01,(char)0xCC}; //protocal 1.0
 
         rs485.send_485packet(tx_buf,8);
 

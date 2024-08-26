@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 spi_module::spi_module(int bus,int cs,int spimode,int frequency,int bitPerWord,bool lsbmode){
     _bus=bus;

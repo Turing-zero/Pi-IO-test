@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 gpio_module::gpio_module(int gpio_num,mraa::Dir dir){
     try {

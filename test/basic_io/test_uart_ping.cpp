@@ -11,7 +11,7 @@
 
 /* standard headers */
 #include <signal.h>
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 volatile sig_atomic_t flag = 1;
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
             flag = false;
             std::cout << "test for 1min: finished." << std::endl;
         }
-        char tx_buf[25] = {0xff};
+        char tx_buf[25] = {(char)0xff};
         tx_buf[0] = 0xab;
         tx_buf[1] = index & 0xff;
         tx_buf[2] = 0xff;//(index >> 8) & 0xff;

@@ -1,6 +1,6 @@
 #ifndef __DYNAMIXEL_2__
 #define __DYNAMIXEL_2__
-#include "rpi_lib.h"
+#include "lib_io.h"
 #include <cmath>
 
 class Dynamixel_2{

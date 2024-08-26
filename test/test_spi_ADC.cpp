@@ -8,7 +8,7 @@
 #include <time.h>
 
 /* mraa headers */
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 /* ADC CHANNEL  */
 #define NUM_CHANNEL 1

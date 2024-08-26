@@ -5,7 +5,7 @@
 #include <thread>
 #include <unistd.h>
 #include <cstring>
-#include "rpi_lib.h"
+#include "lib_io.h"
 #include <time.h>
 
 const int BUFFER_SIZE = 5;

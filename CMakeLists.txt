@@ -20,8 +20,8 @@ file(GLOB PY_MODULE_FILES
 add_library(mraa SHARED IMPORTED)
 set_property(TARGET mraa PROPERTY IMPORTED_LOCATION /usr/local/lib/libmraa.so)
 
-#add_subdirectory(extern/pybind11)   # OR
-find_package(pybind11 REQUIRED)
+add_subdirectory(extern/pybind11)
+# find_package(pybind11 REQUIRED)   # OR
 pybind11_add_module(debugger ${SHARED_SOURCE_FILES} ${PY_MODULE_FILES})
 target_link_libraries(debugger PRIVATE pybind11::module mraa)
 

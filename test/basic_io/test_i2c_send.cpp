@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 #define I2C_SLAVE_ADDR 0x3C // 替换为你的I2C从设备地址
 #define BUFFER_SIZE 25

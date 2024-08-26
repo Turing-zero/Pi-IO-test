@@ -1,4 +1,4 @@
-#include "rpi_lib.h"
+#include "lib_io.h"
 
 i2c_module::i2c_module(int bus){
     _bus=bus;
