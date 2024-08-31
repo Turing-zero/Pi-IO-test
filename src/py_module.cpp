@@ -2,6 +2,7 @@
 #include "lib_io.h"
 #include "dynamixel2.0.h"
 #include "dynamixel1.0.h"
+#include "sensor_adc.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
@@ -128,4 +129,9 @@ PYBIND11_MODULE(debugger, m) {
         .def(py::init())
         .def("open_dynamixel", &Dynamixel_2::open_dynamixel)
         .def("action_angle", &Dynamixel_2::action_angle);
+
+    py::class_<Sensor_ADC>(m, "Sensor_ADC")
+        .def(py::init())
+        .def("open_sensor", &Sensor_ADC::open_sensor)
+        .def("get_voltage_mux", &Sensor_ADC::get_voltage_mux);
 }
