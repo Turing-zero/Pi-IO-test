@@ -31,12 +31,35 @@
 
 #define CONFIG_COMP_QUE_DISABLE ((uint8_t)3) // 禁用比较器
 
+enum ADS1115_DATA_RATE{
+    DR_8SPS = 0,
+    DR_16SPS = 1,
+    DR_32SPS = 2,
+    DR_64SPS = 3,
+    DR_128SPS = 4,
+    DR_250SPS = 5,
+    DR_475SPS = 6,
+    DR_860SPS = 7
+};
+enum ADS1115_PGA{
+    PGA_6_144V = 0,
+    PGA_4_096V = 1,
+    PGA_2_048V = 2,
+    PGA_1_024V = 3,
+    PGA_0_512V = 4,
+    PGA_0_256V = 5
+};
 class Sensor_ADC{
     public:
         ~Sensor_ADC();
         void open_sensor(int _bus);
-        float get_voltage_mux(int device,int channel);
+        float get_voltage_mux(int device, int channel);
+        void config_data_rate(int device, ADS1115_DATA_RATE rate);
+        void config_pga(int device, ADS1115_PGA pga);
     private:
+        uint8_t get_device_addr(int device);
+        void write_config(int device, uint16_t config);
+
         float calc_voltage(uint8_t *rawdata);
         i2c_module *_i2c;
         uint16_t default_config = CONFIG_OS_SINGLE | CONFIG_MUX_0_1 | CONFIG_PGA_6_144V | CONFIG_MODE_SINGLE | CONFIG_DR_128SPS | CONFIG_COMP_QUE_DISABLE;

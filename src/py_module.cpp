@@ -130,8 +130,27 @@ PYBIND11_MODULE(debugger, m) {
         .def("open_dynamixel", &Dynamixel_2::open_dynamixel)
         .def("action_angle", &Dynamixel_2::action_angle);
 
+    //sensor_adc
+    py::enum_<ADS1115_DATA_RATE>(m, "ADS1115_DATA_RATE")
+        .value("DR_8SPS", DR_8SPS)
+        .value("DR_16SPS", DR_16SPS)
+        .value("DR_32SPS", DR_32SPS)
+        .value("DR_64SPS", DR_64SPS)
+        .value("DR_128SPS", DR_128SPS)
+        .value("DR_250SPS", DR_250SPS)
+        .value("DR_475SPS", DR_475SPS)
+        .value("DR_860SPS", DR_860SPS);
+    py::enum_<ADS1115_PGA>(m, "ADS1115_PGA")
+        .value("PGA_6_144V", PGA_6_144V)
+        .value("PGA_4_096V", PGA_4_096V)
+        .value("PGA_2_048V", PGA_2_048V)
+        .value("PGA_1_024V", PGA_1_024V)
+        .value("PGA_0_512V", PGA_0_512V)
+        .value("PGA_0_256V", PGA_0_256V);
     py::class_<Sensor_ADC>(m, "Sensor_ADC")
         .def(py::init())
         .def("open_sensor", &Sensor_ADC::open_sensor)
-        .def("get_voltage_mux", &Sensor_ADC::get_voltage_mux);
+        .def("get_voltage_mux", &Sensor_ADC::get_voltage_mux)
+        .def("config_data_rate", &Sensor_ADC::config_data_rate)
+        .def("config_pga", &Sensor_ADC::config_pga);
 }
