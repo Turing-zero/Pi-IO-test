@@ -1,9 +1,13 @@
 import can
 import numpy as np
 
-class CAN_MCP2515:
-    def __init__(self, baudrate='500k'):
-        self.bus = can.ThreadSafeBus(interface='socketcan', channel='can0', receive_own_messages=False)
+class CAN_PY:
+    # init default: socketcan(mcp2515)
+    def __init__(self, _interface='socketcan', _channel='can0', _bitrate=500000):
+        self.bus = can.ThreadSafeBus(interface=_interface, channel=_channel, bitrate=_bitrate, receive_own_messages=False)
+    
+    def __del__(self):
+        self.bus.shutdown()
     
     def send(self, id, data):
         message = can.Message(arbitration_id=id, is_extended_id=True, data=data)

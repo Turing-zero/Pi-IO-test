@@ -1,4 +1,4 @@
-from src.can_mcp2515 import CAN_MCP2515
+from src.can_py import CAN_PY
 import can
 import time
 import threading
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     receive_thread = threading.Thread(target=udp_receive_thread, args=(stop_event,))
     receive_thread.start()
 
-    _can = CAN_MCP2515()
+    _can = CAN_PY()
 
     for i in range(100000):
         if not message_queue.empty():
@@ -44,11 +44,10 @@ if __name__ == '__main__':
         time.sleep(0.001)
 
     print("stop")
+    del _can
     stop_event.set()
     server_socket.close()
-    # for i in range(10):
-    #     _can.send_rpm(20, i*100)
-    #     _can.send_rpm(30, i*100)
+    # for i in range(10000):
     #     msg = _can.bus.recv()
     #     if msg is not None:
     #         print(msg)

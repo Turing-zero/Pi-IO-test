@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
 
-from src.can_mcp2515 import CAN_MCP2515
+from src.can_py import CAN_PY
 import numpy as np
 import time
 
@@ -14,7 +14,7 @@ def pack(header:np.uint8, index:int):
     data[2] = index & 0xff
     return data
 
-def test_ping_pong(can_handle:CAN_MCP2515, maxcount=1000):
+def test_ping_pong(can_handle:CAN_PY, maxcount=1000):
     latency = []
     for i in range(maxcount):
         can_handle.send(CAN_ID, pack(0x0c, 0))
@@ -28,7 +28,7 @@ def test_ping_pong(can_handle:CAN_MCP2515, maxcount=1000):
     ave = np.mean(latency)
     return ave
 
-def test_hit_rate(can_handle:CAN_MCP2515, freq=1000, maxcount=1000):
+def test_hit_rate(can_handle:CAN_PY, freq=1000, maxcount=1000):
     _can.send(CAN_ID, pack(0xab, 0))
     time.sleep(0.01)
     
@@ -40,7 +40,7 @@ def test_hit_rate(can_handle:CAN_MCP2515, freq=1000, maxcount=1000):
     print("hit rate test over!")
 
 if __name__ == '__main__':
-    _can = CAN_MCP2515()
+    _can = CAN_PY()
     
     test_hit_rate(_can)
 
