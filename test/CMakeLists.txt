@@ -1,8 +1,8 @@
-option(BUILD_IO_TEST "test io" OFF)
-option(BUILD_DEVICE_TEST "test device" ON)
+option(BUILD_BASIC_IO "test io" ON)
+option(BUILD_DEVICE_TEST "test device" OFF)
 
-if(BUILD_IO_TEST)
-    message(STATUS "Building IO tests")
+if(BUILD_BASIC_IO)
+    message(STATUS "Building basic IO")
     file(GLOB TEST_IO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/basic_io/test_*.cpp)
     list(FILTER TEST_IO_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
 
@@ -10,12 +10,13 @@ if(BUILD_IO_TEST)
         get_filename_component(test_name ${test_io_file} NAME_WE)
         add_executable(${test_name} ${test_io_file} ${SHARED_SOURCE_FILES})
         target_link_libraries(${test_name} mraa stdc++)
+        message(STATUS "Adding test ${test_name}")
     endforeach()
 endif()
 
 if(BUILD_DEVICE_TEST)
     message(STATUS "Building device tests")
-    file(GLOB TEST_DEVICE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp)
+    file(GLOB TEST_DEVICE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/devices/test_*.cpp)
     list(FILTER TEST_DEVICE_FILES EXCLUDE REGEX ".*_pigpio.cpp$")
     
     foreach(test_device_file ${TEST_DEVICE_FILES})

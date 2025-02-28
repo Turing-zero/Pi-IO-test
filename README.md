@@ -44,7 +44,7 @@ sudo apt install can-utils
 ```bash
 mkdir build
 cd build 
-cmake .. -DBUILD_IO_TEST=OFF -DBUILD_DEVICE_TEST=ON # default
+cmake .. -DBUILD_BASIC_IO=ON -DBUILD_DEVICE_TEST=OFF # default
 make
 
 # test

@@ -15,15 +15,17 @@
 #include "mraa/spi.hpp"
 #include "mraa/i2c.hpp"
 
+#define PI_UART_NUM 6
 
 #define MAX_UDP_BUFFER_SIZE 1024
 enum Uart_Port{
     UART0=0,
-    UART1,
-    UART2,
-    UART3,
-    UART4,
-    UART5,
+    UART1=1,
+    UART2=2,
+    UART3=3,
+    UART4=4,
+    UART5=5,
+    CUSTOM=6
 };
 
 enum Channel{
@@ -36,7 +38,7 @@ enum Channel{
     sw4 = 6
 };
 namespace devices{
-    inline  std::string dev_path[6]={
+    inline std::string dev_path[6]={
         "/dev/ttyAMA0",
         "/dev/ttyS0",
         "/dev/ttyAMA1",
@@ -59,7 +61,8 @@ class gpio_module{
 
 class uart_module{
     public:
-        uart_module(int baudrate = 115200,Uart_Port port=UART0,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
+        // TODO: other uart port
+        uart_module(int baudrate = 115200,Uart_Port port=CUSTOM,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
         ~uart_module();
         void setBaudRate(int baudrate){ _baudrate = baudrate;}
         void setUartPort(Uart_Port port){ _port=port;}
@@ -75,10 +78,11 @@ class uart_module{
         int getStopBits(){ return _stopbyte;}
         bool getXonxoff(){ return _xonxoff;}
         bool getRtscts(){ return _rtscts;}
-        void open_uart();
+        void open_uart(std::string uart_port_str="/dev/ttyUSB0");
         void close_uart();
         void send_packet(char* packet,int length);
-        int recv_packet(char *packet,int max_size);
+        int recv_packet(char *packet,int max_size, int timeout_ms = 50);
+        void clear_rxbuf(int max_size=1024);
         static unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
     private:
         int _baudrate;
