@@ -1,11 +1,24 @@
 #ifndef __DYNAMIXEL_2__
 #define __DYNAMIXEL_2__
 #include "lib_io.h"
+#include "proto/MX-64-2.0.h"
 #include <cmath>
 
 class Dynamixel_2{
   public:
   void open_dynamixel(int baudrate = 1000000,int uart_delay = 400,Uart_Port port = UART0,int control_pin=36);
+
+  void set_goal_position(int id,uint16_t position);
+  void set_goal_position_deg(int id, int deg);
+  void set_goal_vel(int id, uint16_t speed);
+  void set_goal_vel_rpm(int id, int rpm);
+  void set_torque_enable(int id, bool enable);
+
+  uint16_t get_present_position(int id,char* recv_buf);
+  double get_present_position_deg(int id,char* recv_buf);
+  uint16_t get_present_speed(int id,char* recv_buf);
+  double get_present_speed_rpm(int id,char* recv_buf);
+
   int factory_reset(int id,char* recv_buf);
   int ping(int id,char* recv_buf);
   int read(int id,char* recv_buf,int address,int low_size,int high_size);

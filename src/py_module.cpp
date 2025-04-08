@@ -133,7 +133,45 @@ PYBIND11_MODULE(debugger, m) {
     py::class_<Dynamixel_2>(m,"Dynamixel_2")
         .def(py::init())
         .def("open_dynamixel", &Dynamixel_2::open_dynamixel)
-        .def("action_angle", &Dynamixel_2::action_angle);
+        .def("action_angle", &Dynamixel_2::action_angle)
+        .def("ping", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.ping(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("read",[](Dynamixel_2 &self,int id,py::array_t<char> recv_buf,int address,int low_size,int high_size){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.read(id,ptr,address,low_size,high_size);
+            },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("low_size"),py::arg("high_size"))
+        .def("write", &Dynamixel_2::write)
+        .def("regwrite", &Dynamixel_2::regwrite)
+        .def("action", &Dynamixel_2::action)
+        .def("set_torque_enable", &Dynamixel_2::set_torque_enable)
+        .def("set_goal_position", &Dynamixel_2::set_goal_position)
+        .def("set_goal_position_deg", &Dynamixel_2::set_goal_position_deg)
+        .def("set_goal_vel", &Dynamixel_2::set_goal_vel)
+        .def("set_goal_vel_rpm", &Dynamixel_2::set_goal_vel_rpm)
+        .def("get_present_position", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            return self.get_present_position(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("get_present_position_deg", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            return self.get_present_position_deg(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("get_present_speed", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            return self.get_present_speed(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("get_present_speed_rpm", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            return self.get_present_speed_rpm(id,ptr);
+            },py::arg("id"),py::arg("recv_buf"));
 
     //sensor_adc
     py::enum_<ADS1115_DATA_RATE>(m, "ADS1115_DATA_RATE")

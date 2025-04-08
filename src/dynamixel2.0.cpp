@@ -88,10 +88,11 @@ int Dynamixel_2::ping(int id,char* recv_buf){
     return len;
 }
 
+// read two bytes
 int Dynamixel_2::read(int id,char* recv_buf,int address,int low_size,int high_size){
     //command
-    int low_address = address&0xFF;
-    int high_address = address>>8&0xFF;
+    int low_address = address & 0xFF;
+    int high_address = (address >> 8) & 0xFF;
     char command[14]={(char)0xFF,(char)0xFF,(char)0xFD,(char)0x00,(char)0x00,(char)0x07,(char)0x00,(char)0x02,(char)0x84,(char)0x00,(char)0x04,(char)0x00};
     command[4] = id;
     command[8] = low_address;
@@ -198,7 +199,7 @@ int Dynamixel_2::action(int id,char* recv_buf){
     command[4] = id;
     unsigned short CRC_result = dynamixel->update_crc(0,(unsigned char*)command,8);
     command[8] = CRC_result&0xFF;
-    command[9] = CRC_result>>8&0xFF;
+    command[9] = (CRC_result>>8)&0xFF;
 
     //action and recv state
     dynamixel->send_485packet(command,10);
@@ -454,4 +455,54 @@ void Dynamixel_2::bulk_write(int*id_group,long int*data,int*address,int*low_size
 
     //action and recv state
     dynamixel->send_485packet(command,before_id_bit);
+}
+
+void Dynamixel_2::set_torque_enable(int id, bool enable) {
+    char recv_buf[32]="";
+    write(id, recv_buf, MX64_2_0_RAM::TORQUE_ENABLE, enable ? 1 : 0);
+}
+
+void Dynamixel_2::set_goal_position(int id,uint16_t position) {
+    char recv_buf[32]="";
+    set_torque_enable(id, true);
+    regwrite(id, recv_buf, MX64_2_0_RAM::GOAL_POSITION, position);
+    action(id, recv_buf);
+}
+void Dynamixel_2::set_goal_position_deg(int id, int deg) {
+    uint16_t raw = (uint16_t) (deg / 0.088f);
+    raw = (raw > 4095) ? 4095 : raw;
+    set_goal_position(id, raw);
+}
+
+void Dynamixel_2::set_goal_vel(int id, uint16_t speed) {
+    char recv_buf[32]="";
+    regwrite(id, recv_buf, MX64_2_0_RAM::GOAL_VELOCITY, speed);
+    action(id, recv_buf);
+}
+
+void Dynamixel_2::set_goal_vel_rpm(int id, int rpm) {
+    uint16_t raw = (uint16_t) (rpm / 0.114f);
+    raw = (raw > 1023) ? 1023 : raw;
+    set_goal_vel(id, raw);
+}
+
+uint16_t Dynamixel_2::get_present_position(int id, char *recv_buf) {
+    read(id, recv_buf, MX64_2_0_RAM::PRESENT_POSITION, 2, 0);
+    uint16_t raw = (uint16_t)((recv_buf[10] << 8) | recv_buf[9]);
+    return raw;
+}
+double Dynamixel_2::get_present_position_deg(int id, char *recv_buf) {
+    uint16_t raw = get_present_position(id, recv_buf);
+    double deg = (double)raw * 0.088f;
+    return deg;
+}
+uint16_t Dynamixel_2::get_present_speed(int id, char *recv_buf) {
+    read(id, recv_buf, MX64_2_0_RAM::PRESENT_VELOCITY, 2, 0);
+    uint16_t raw = (uint16_t)((recv_buf[10] << 8) | recv_buf[9]);
+    return raw;
+}
+double Dynamixel_2::get_present_speed_rpm(int id, char *recv_buf) {
+    uint16_t raw = get_present_speed(id, recv_buf);
+    double rpm = (double)raw * 0.114f;
+    return rpm;
 }

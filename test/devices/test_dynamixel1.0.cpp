@@ -12,7 +12,7 @@ int main() {
     // device.write(2,recv_buf,0x18,0x01);
     // device.regwrite(2,recv_buf,0x1E,0x0000);
     // device.action(2,recv_buf);
-    len = device.read(2, recv_buf, 0x18, 0x01);
+    len = device.read(0, recv_buf, 0x18, 0x01);
     for (int i = 0; i < len; ++i) {
         std::cout << (int)recv_buf[i] << " ";
     }
@@ -37,9 +37,9 @@ int main() {
     // }
     // std::cout << std::endl;
 
-    device.set_moving_speed_rpm(2, 100);
-    device.action_angle(2, 0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    device.action_angle(2, 1);
+    // device.set_moving_speed_rpm(2, 100);
+    // device.action_angle(2, 0);
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // device.action_angle(2, 1);
     return 0;
 }
