@@ -37,7 +37,8 @@ PYBIND11_MODULE(debugger, m) {
         .value("UART2", UART2)
         .value("UART3", UART3)
         .value("UART4", UART4)
-        .value("UART5", UART5);
+        .value("UART5", UART5)
+        .value("CUSTOM", CUSTOM);
     py::enum_<mraa::UartParity>(m, "Parity")
         .value("NONE", mraa::UartParity::UART_PARITY_NONE)
         .value("EVEN", mraa::UartParity::UART_PARITY_EVEN)
@@ -122,7 +123,11 @@ PYBIND11_MODULE(debugger, m) {
             py::buffer_info buf = recv_buf.request();
             char* ptr = (char*)buf.ptr;
             self.factory_reset(id,ptr);
-            },py::arg("id"),py::arg("recv_buf"));
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("set_goal_position", &Dynamixel_1::set_goal_position)
+        .def("set_goal_position_deg", &Dynamixel_1::set_goal_position_deg)
+        .def("set_moving_speed", &Dynamixel_1::set_moving_speed)
+        .def("set_moving_speed_rpm", &Dynamixel_1::set_moving_speed_rpm);
 
     //dynamixel2.0
     py::class_<Dynamixel_2>(m,"Dynamixel_2")

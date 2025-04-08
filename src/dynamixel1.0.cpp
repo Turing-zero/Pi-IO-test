@@ -3,7 +3,7 @@
 
 void Dynamixel_1::open_dynamixel(int baudrate,int uart_delay,Uart_Port port,int control_pin){
     dynamixel = new rs485_module(baudrate,uart_delay,port,control_pin);
-    dynamixel->open_rs485();
+    dynamixel->open_rs485("/dev/ttyUSB0");
 }
 
 int Dynamixel_1::reboot(int id,char* recv_buf){
@@ -253,6 +253,7 @@ int Dynamixel_1::angle2hex(double angle){
     return angle*step;
 }
 
+// absolute angle
 void Dynamixel_1::action_angle(int id,double angle){
     char recv_buf[256]="";
     //打开torque enable 才能控制舵机
@@ -261,4 +262,27 @@ void Dynamixel_1::action_angle(int id,double angle){
     action(id,recv_buf);
     //关闭torque enable
     // write(id,recv_buf,0x40,0x00);
+}
+
+void Dynamixel_1::set_goal_position(int id,uint16_t position) {
+    char recv_buf[32]="";
+    regwrite(id, recv_buf, MX64_RAM::GOAL_POSITION, position);
+    action(id, recv_buf);
+}
+void Dynamixel_1::set_goal_position_deg(int id, int deg) {
+    uint16_t raw = (uint16_t) (deg / 0.088f);
+    raw = (raw > 4095) ? 4095 : raw;
+    set_goal_position(id, raw);
+}
+
+void Dynamixel_1::set_moving_speed(int id, uint16_t speed) {
+    char recv_buf[32]="";
+    regwrite(id, recv_buf, MX64_RAM::MOVING_SPEED, speed);
+    action(id, recv_buf);
+}
+
+void Dynamixel_1::set_moving_speed_rpm(int id, int rpm) {
+    uint16_t raw = (uint16_t) (rpm / 0.114f);
+    raw = (raw > 1023) ? 1023 : raw;
+    set_moving_speed(id, raw);
 }

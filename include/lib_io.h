@@ -99,7 +99,7 @@ class rs485_module:public uart_module{
     public:
         rs485_module(int baudrate = 115200,int uart_delay=1200 ,Uart_Port port=UART0,int sw_gpio=-1,int databyte=8,mraa::UartParity parity=mraa::UART_PARITY_NONE,int stopbits = 1,bool xonxoff=false,bool rtscts=false);
         ~rs485_module();
-        void open_rs485();
+        void open_rs485(std::string rs485_port="/dev/ttyUSB0");
         void close_rs485();
         void setUartDelay(int uart_delay){ _uart_delay=uart_delay;}
         void set_RsSwPort(int port){ _Rs_SwPort=port;}

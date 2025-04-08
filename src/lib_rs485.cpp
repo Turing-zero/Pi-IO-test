@@ -5,9 +5,9 @@ rs485_module::rs485_module(int baudrate,int uart_delay ,Uart_Port port,int sw_gp
     _uart_delay=uart_delay;
 }
 
-void rs485_module::open_rs485(){
+void rs485_module::open_rs485(std::string rs485_port){
     // init rs485
-    uart_module::open_uart();
+    uart_module::open_uart(rs485_port);
     try {
         gpio = new mraa::Gpio(_Rs_SwPort);
         gpio->dir(mraa::DIR_OUT);
