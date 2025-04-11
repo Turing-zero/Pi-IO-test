@@ -148,6 +148,79 @@ int Dynamixel_2::write(int id,char*recv_buf,int address,int data){
     }
     return len;
 }
+
+void Dynamixel_2::dir_write(int id, char *recv_buf, uint16_t address, int data, int len) {
+    // command
+    int addr_L = address & 0xFF;
+    int addr_H = address >> 8 & 0xFF;
+    // char command[25] = {(char)0xFF, (char)0xFF, (char)0xFD, (char)0x00, (char)0x00, (char)0x09, (char)0x00, (char)0x04, (char)0x74, (char)0x00, (char)0x00, (char)0x02, (char)0x00, (char)0x00};
+    char command[25] = {0x0};
+    command[0] = (char)0xFF;
+    command[1] = (char)0xFF;
+    command[2] = (char)0xFD;
+    command[3] = (char)0x00;
+    command[4] = id;
+    command[5] = (char)(len + 5);        // len_L
+    command[6] = (char)((len + 5) >> 8 & 0xff); // len_H
+    command[7] = (char)0x03;             // instruction: write
+    command[8] = addr_L;
+    command[9] = addr_H;
+    for (int i = 0; i < len; i++) {
+        command[10 + i] = (data >> (i * 8)) & 0xFF;
+    }
+    unsigned short CRC_result = dynamixel->update_crc(0, (unsigned char *)command, 10+len);
+    command[10 + len] = CRC_result & 0xFF;
+    command[11 + len] = (CRC_result >> 8) & 0xFF;
+
+    // action and recv state
+    dynamixel->send_485packet(command, 12 + len);
+
+    int recv_len = 0;
+    std::time_t start_time = std::time(nullptr);
+    while(recv_len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        recv_len=dynamixel->recv_485packet(recv_buf,25);
+    }
+}
+
+void Dynamixel_2::reg_write(int id, char *recv_buf, uint16_t address, int data, int len) {
+    // command
+    int addr_L = address & 0xFF;
+    int addr_H = address >> 8 & 0xFF;
+    // char command[25] = {(char)0xFF, (char)0xFF, (char)0xFD, (char)0x00, (char)0x00, (char)0x09, (char)0x00, (char)0x04, (char)0x74, (char)0x00, (char)0x00, (char)0x02, (char)0x00, (char)0x00};
+    char command[25] = {0x0};
+    command[0] = (char)0xFF;
+    command[1] = (char)0xFF;
+    command[2] = (char)0xFD;
+    command[3] = (char)0x00;
+    command[4] = id;
+    command[5] = (char)(len + 5);        // len_L
+    command[6] = (char)((len + 5) >> 8); // len_H
+    command[7] = (char)0x04;             // instruction: reg write
+    command[8] = addr_L;
+    command[9] = addr_H;
+    for (int i = 0; i < len; i++) {
+        command[10 + i] = (data >> (i * 8)) & 0xFF;
+    }
+    unsigned short CRC_result = dynamixel->update_crc(0, (unsigned char *)command, 14);
+    command[10 + len] = CRC_result & 0xFF;
+    command[11 + len] = (CRC_result >> 8) & 0xFF;
+
+    // action and recv state
+    dynamixel->send_485packet(command, 12 + len);
+
+    int recv_len = 0;
+    std::time_t start_time = std::time(nullptr);
+    while(recv_len==0){
+        std::time_t end_time = std::time(nullptr);
+        double elapsed_time = std::difftime(end_time, start_time);
+        if(elapsed_time>=0.5) break;
+        recv_len=dynamixel->recv_485packet(recv_buf,25);
+    }
+}
+
 /*
 TODO 理论上address作为起始地址，后续的地址内容都可以被赋值，举个例子假设address为0x40  0x40控制torque enable的，
 占两个字节  理论上传两个字节数据就可以了，假设传了四个字节的数据，那么后续的内容继承的赋值给0x40后续的寄存器，理论上0x40后续的
@@ -462,47 +535,46 @@ void Dynamixel_2::set_torque_enable(int id, bool enable) {
     write(id, recv_buf, MX64_2_0_RAM::TORQUE_ENABLE, enable ? 1 : 0);
 }
 
-void Dynamixel_2::set_goal_position(int id,uint16_t position) {
+void Dynamixel_2::set_goal_position(int id, int32_t position) {
     char recv_buf[32]="";
     set_torque_enable(id, true);
     regwrite(id, recv_buf, MX64_2_0_RAM::GOAL_POSITION, position);
     action(id, recv_buf);
 }
 void Dynamixel_2::set_goal_position_deg(int id, int deg) {
-    uint16_t raw = (uint16_t) (deg / 0.088f);
-    raw = (raw > 4095) ? 4095 : raw;
+    int32_t raw = (int32_t) (deg / 0.088f);
     set_goal_position(id, raw);
 }
 
-void Dynamixel_2::set_goal_vel(int id, uint16_t speed) {
+void Dynamixel_2::set_goal_vel(int id, int32_t speed) {
     char recv_buf[32]="";
     regwrite(id, recv_buf, MX64_2_0_RAM::GOAL_VELOCITY, speed);
     action(id, recv_buf);
 }
 
 void Dynamixel_2::set_goal_vel_rpm(int id, int rpm) {
-    uint16_t raw = (uint16_t) (rpm / 0.114f);
+    int32_t raw = (int32_t) (rpm / 0.114f);
     raw = (raw > 1023) ? 1023 : raw;
     set_goal_vel(id, raw);
 }
 
-uint16_t Dynamixel_2::get_present_position(int id, char *recv_buf) {
-    read(id, recv_buf, MX64_2_0_RAM::PRESENT_POSITION, 2, 0);
-    uint16_t raw = (uint16_t)((recv_buf[10] << 8) | recv_buf[9]);
+int32_t Dynamixel_2::get_present_position(int id, char *recv_buf) {
+    read(id, recv_buf, MX64_2_0_RAM::PRESENT_POSITION, 4, 0);
+    int32_t raw = (int32_t)(recv_buf[9] | (recv_buf[10] << 8) | (recv_buf[11] << 16) | (recv_buf[12] << 24));
     return raw;
 }
 double Dynamixel_2::get_present_position_deg(int id, char *recv_buf) {
-    uint16_t raw = get_present_position(id, recv_buf);
+    int raw = get_present_position(id, recv_buf);
     double deg = (double)raw * 0.088f;
     return deg;
 }
-uint16_t Dynamixel_2::get_present_speed(int id, char *recv_buf) {
-    read(id, recv_buf, MX64_2_0_RAM::PRESENT_VELOCITY, 2, 0);
-    uint16_t raw = (uint16_t)((recv_buf[10] << 8) | recv_buf[9]);
+int32_t Dynamixel_2::get_present_speed(int id, char *recv_buf) {
+    read(id, recv_buf, MX64_2_0_RAM::PRESENT_VELOCITY, 4, 0);
+    int32_t raw = (int32_t)(recv_buf[9] | (recv_buf[10] << 8) | (recv_buf[11] << 16) | (recv_buf[12] << 24));
     return raw;
 }
 double Dynamixel_2::get_present_speed_rpm(int id, char *recv_buf) {
-    uint16_t raw = get_present_speed(id, recv_buf);
+    int raw = get_present_speed(id, recv_buf);
     double rpm = (double)raw * 0.114f;
     return rpm;
 }

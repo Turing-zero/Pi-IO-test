@@ -144,7 +144,11 @@ PYBIND11_MODULE(debugger, m) {
             char* ptr = (char*)buf.ptr;
             self.read(id,ptr,address,low_size,high_size);
             },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("low_size"),py::arg("high_size"))
-        .def("write", &Dynamixel_2::write)
+        .def("write", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf,int address,int data){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.write(id,ptr,address,data);
+            },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("data"))
         .def("regwrite", &Dynamixel_2::regwrite)
         .def("action", &Dynamixel_2::action)
         .def("set_torque_enable", &Dynamixel_2::set_torque_enable)
@@ -171,7 +175,17 @@ PYBIND11_MODULE(debugger, m) {
             py::buffer_info buf = recv_buf.request();
             char* ptr = (char*)buf.ptr;
             return self.get_present_speed_rpm(id,ptr);
-            },py::arg("id"),py::arg("recv_buf"));
+            },py::arg("id"),py::arg("recv_buf"))
+        .def("dir_write", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf,int address,int data,int len){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.dir_write(id,ptr,address,data,len);
+            },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("data"),py::arg("len"))
+        .def("reg_write", [](Dynamixel_2 &self,int id,py::array_t<char> recv_buf,int address,int data,int len){
+            py::buffer_info buf = recv_buf.request();
+            char* ptr = (char*)buf.ptr;
+            self.reg_write(id,ptr,address,data,len);
+            },py::arg("id"),py::arg("recv_buf"),py::arg("address"),py::arg("data"),py::arg("len"));
 
     //sensor_adc
     py::enum_<ADS1115_DATA_RATE>(m, "ADS1115_DATA_RATE")
