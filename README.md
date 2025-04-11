@@ -35,6 +35,9 @@ pip install numpy pybind11
 ```bash
 # CAN controller driver
 sudo apt install can-utils
+
+# python canalystii
+pip install python-can canalystii
 ```
 
 ## 编译运行
