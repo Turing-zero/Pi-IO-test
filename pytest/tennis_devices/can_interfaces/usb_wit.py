@@ -155,8 +155,12 @@ class CANUsbWit(CANInterfaceBase):
             if data_bytes.startswith(b'AT'):
                 id = (int(data_bytes[2]) << 21) | (int(data_bytes[3]) << 13) | (int(data_bytes[4]) << 5) | (int(data_bytes[5]) >> 3)
                 length = int(data_bytes[6])
-                data = [int(x) for x in data_bytes[7:7+length]]
-                return id, data
+                if length == len(data_bytes) - 9:
+                    data = [int(x) for x in data_bytes[7:7+length]]
+                    return id, data
+                    # print("recv: {} bytes, data len: {}".format(len(data_bytes), length))
+                else:
+                    return None, None
             else:
                 raise ValueError("Invalid CAN frame header")
         except Exception as e:
