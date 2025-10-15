@@ -32,10 +32,20 @@ class VESC_PACK(Structure):
 
 def buffer_get_int16(buffer, index):
     value = buffer[index] << 8 | buffer[index + 1]
-    return np.int16(value)
+    # 处理16位有符号整数溢出问题
+    # 如果最高位是1，则表示这是一个负数
+    if value & 0x8000:
+        # 转换为负数的补码表示
+        value = value - 0x10000
+    return value
 def buffer_get_int32(buffer, index):
     value = buffer[index] << 24 | buffer[index + 1] << 16 | buffer[index + 2] << 8 | buffer[index + 3]
-    return np.int32(value)
+    # 处理32位有符号整数溢出问题
+    # 如果最高位是1，则表示这是一个负数
+    if value & 0x80000000:
+        # 转换为负数的补码表示
+        value = value - 0x100000000
+    return value
 def buffer_get_float16(buffer, scale, index):
     value = buffer_get_int16(buffer, index)
     return float(value) / scale
@@ -66,9 +76,30 @@ class VESC():
     def send_pass_through(self, _id:np.uint8, _pos:float, _rpm:float, _cur:float):
         id = _id + 0x3F00
         data = [0, 0, 0, 0, 0, 0, 0, 0]
-        pos_int = np.uint16(int(_pos*100))
-        rpm_int = np.uint16(int(_rpm))
-        cur_int = np.uint16(int(_cur*1000))
+        # 处理位置值，将其转换为有符号16位整数
+        pos_int = int(_pos*100)
+        # 确保位置值在16位有符号整数范围内
+        if pos_int < -32768:
+            pos_int = -32768
+        elif pos_int > 32767:
+            pos_int = 32767
+            
+        # 处理RPM值，将其转换为有符号16位整数
+        rpm_int = int(_rpm)
+        # 确保RPM值在16位有符号整数范围内
+        if rpm_int < -32768:
+            rpm_int = -32768
+        elif rpm_int > 32767:
+            rpm_int = 32767
+            
+        # 处理电流值，将其转换为有符号16位整数
+        cur_int = int(_cur*1000)
+        # 确保电流值在16位有符号整数范围内
+        if cur_int < -32768:
+            cur_int = -32768
+        elif cur_int > 32767:
+            cur_int = 32767
+            
         data[0] = (pos_int >> 8) & 0xff
         data[1] = pos_int & 0xff
         data[2] = (rpm_int >> 8) & 0xff
@@ -81,7 +112,14 @@ class VESC():
     def send_pos(self, _id:np.uint8, _pos:float, usb_channel=0, can_channel=0):
         id = _id + 0x400
         data = [0, 0, 0, 0, 0, 0, 0, 0]
-        pos_int = np.uint32(int(_pos*1e6))
+        # 处理位置值，将其转换为有符号32位整数
+        pos_int = int(_pos*1e6)
+        # 确保位置值在32位有符号整数范围内
+        if pos_int < -2147483648:
+            pos_int = -2147483648
+        elif pos_int > 2147483647:
+            pos_int = 2147483647
+            
         data[0] = (pos_int >> 24) & 0xff
         data[1] = (pos_int >> 16) & 0xff
         data[2] = (pos_int >> 8) & 0xff
@@ -92,7 +130,14 @@ class VESC():
     def send_rpm(self, _id:np.uint8, _rpm:float):
         id = _id + 0x300
         data = [0, 0, 0, 0, 0, 0, 0, 0]
-        rpm_int = np.uint32(int(_rpm))
+        # 处理负数RPM值，将其转换为有符号32位整数
+        rpm_int = int(_rpm)
+        # 确保RPM值在32位有符号整数范围内
+        if rpm_int < -2147483648:
+            rpm_int = -2147483648
+        elif rpm_int > 2147483647:
+            rpm_int = 2147483647
+            
         data[0] = (rpm_int >> 24) & 0xff
         data[1] = (rpm_int >> 16) & 0xff
         data[2] = (rpm_int >> 8) & 0xff
@@ -106,7 +151,14 @@ class VESC():
         id = _id + 0x100
         data = [0, 0, 0, 0, 0, 0, 0, 0]
         off_delay_int = np.uint16(0)
-        cur_int = np.uint32(int(_cur * 1000))
+        # 处理负数电流值，将其转换为有符号32位整数
+        cur_int = int(_cur * 1000)
+        # 确保电流值在32位有符号整数范围内
+        if cur_int < -2147483648:
+            cur_int = -2147483648
+        elif cur_int > 2147483647:
+            cur_int = 2147483647
+            
         data[0] = (off_delay_int >> 8) & 0xff
         data[1] = off_delay_int & 0xff
         data[2] = (cur_int >> 24) & 0xff
@@ -121,8 +173,14 @@ class VESC():
         if id is None:
             return None,None
 
+        # 只处理ID为40的消息，其他ID的消息忽略
+        # vesc_id = id & 0xff
+        # if vesc_id != 40:
+        #     print(f"Ignoring message from VESC ID {vesc_id}, only accepting ID 40")
+        #     return None, None
+
         # print("RECV vesc id: {}, data: {}".format(id & 0xff, data))
-        self.can_packet.id = id & 0xff
+        # self.can_packet.id = vesc_id
         # uint8_t can_packet_status_id = (msg->identifier >> 8) & 0xff;
         # int32_t send_index = 0;
         status_id = (id >> 8) & 0xff
@@ -130,6 +188,7 @@ class VESC():
             self.can_packet.rpm = int(buffer_get_float32(data, 1, 0))
             self.can_packet.current = buffer_get_float16(data, 1e2, 4)
             self.can_packet.pid_pos_now = buffer_get_float16(data, 50.0, 6)
+            print("RECV vesc id: {}, rpm: {}, current: {}, pid_pos_now: {}".format(id & 0xff, self.can_packet.rpm, self.can_packet.current, self.can_packet.pid_pos_now))
         else:
             print("not vesc status packet!")
             return None, None
