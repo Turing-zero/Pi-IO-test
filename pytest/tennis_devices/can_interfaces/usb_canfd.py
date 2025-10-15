@@ -134,7 +134,7 @@ class USBCANFD:
         ret = self.canDLL.ZCAN_CloseDevice(self.can_device)
         if ret != STATUS_OK:
             print("Close Device failed!")
-            exit(0)
+            # exit(0)
         print("Close Device OK!")
 
     def reconfigure_channel(self, channel: int, abitrate: int, dbitrate: int, fd_on: bool):
@@ -240,7 +240,7 @@ class CANUsbCanfd(CANInterfaceBase):
             channels = [0]
         self.channels = channels
         
-        file_path = os.path.join(script_dir, 'libs', 'libcontrolcanfd.so')
+        file_path = os.path.join(script_dir, 'libs', 'ControlCANFD.dll')
         self.can_handler = USBCANFD(file_path)
         # self.can_handler = USBCANFD('./libs/libcontrolcanfd.so')
         for channel in channels:
