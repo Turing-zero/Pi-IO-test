@@ -3,7 +3,7 @@ from .base import CANInterfaceBase
 import numpy as np
 import can
 import os
-
+import platform
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 VCI_USBCAN2 = 4
@@ -239,10 +239,15 @@ class CANUsbCanfd(CANInterfaceBase):
         if not channels:
             channels = [0]
         self.channels = channels
-        
-        file_path = os.path.join(script_dir, 'libs', 'ControlCANFD.dll')
+        system = platform.system()
+        if system == 'Windows':
+            file_path = os.path.join(script_dir, 'libs', 'ControlCANFD.dll')
+        elif system == 'Linux':
+            file_path = os.path.join(script_dir, 'libs', 'libcontrolcanfd.so')
+        else:
+            raise OSError(f"Unsupported operating system: {system}")
+            
         self.can_handler = USBCANFD(file_path)
-        # self.can_handler = USBCANFD('./libs/libcontrolcanfd.so')
         for channel in channels:
             self.can_handler.start_channel(channel, abaudrate, dbitrate, fd_on)
 
