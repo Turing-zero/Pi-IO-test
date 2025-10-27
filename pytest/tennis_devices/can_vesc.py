@@ -79,26 +79,26 @@ class VESC():
         # 处理位置值，将其转换为有符号16位整数
         pos_int = int(_pos*100)
         # 确保位置值在16位有符号整数范围内
-        if pos_int < -32768:
-            pos_int = -32768
-        elif pos_int > 32767:
-            pos_int = 32767
+        if pos_int < -2^8:
+            pos_int = -2^8
+        elif pos_int > 2^8-1:
+            pos_int = 2^8-1
             
         # 处理RPM值，将其转换为有符号16位整数
         rpm_int = int(_rpm)
         # 确保RPM值在16位有符号整数范围内
-        if rpm_int < -32768:
-            rpm_int = -32768
-        elif rpm_int > 32767:
-            rpm_int = 32767
+        if rpm_int < -2^8:
+            rpm_int = -2^8
+        elif rpm_int > 2^8-1:
+            rpm_int = 2^8-1
             
         # 处理电流值，将其转换为有符号16位整数
         cur_int = int(_cur*1000)
         # 确保电流值在16位有符号整数范围内
-        if cur_int < -32768:
-            cur_int = -32768
-        elif cur_int > 32767:
-            cur_int = 32767
+        if cur_int < -2^8:
+            cur_int = -2^8
+        elif cur_int > 2^8-1:
+            cur_int = 2^8-1
             
         data[0] = (pos_int >> 8) & 0xff
         data[1] = pos_int & 0xff
@@ -115,10 +115,10 @@ class VESC():
         # 处理位置值，将其转换为有符号32位整数
         pos_int = int(_pos*1e6)
         # 确保位置值在32位有符号整数范围内
-        if pos_int < -2147483648:
-            pos_int = -2147483648
-        elif pos_int > 2147483647:
-            pos_int = 2147483647
+        if pos_int < -2^31:
+            pos_int = -2^31
+        elif pos_int > 2^31-1:
+            pos_int = 2^31-1
             
         data[0] = (pos_int >> 24) & 0xff
         data[1] = (pos_int >> 16) & 0xff
@@ -133,10 +133,10 @@ class VESC():
         # 处理负数RPM值，将其转换为有符号32位整数
         rpm_int = int(_rpm)
         # 确保RPM值在32位有符号整数范围内
-        if rpm_int < -2147483648:
-            rpm_int = -2147483648
-        elif rpm_int > 2147483647:
-            rpm_int = 2147483647
+        if rpm_int < -2^31:
+            rpm_int = -2^31
+        elif rpm_int > 2^31-1:
+            rpm_int = 2^31-1
             
         data[0] = (rpm_int >> 24) & 0xff
         data[1] = (rpm_int >> 16) & 0xff
@@ -154,10 +154,10 @@ class VESC():
         # 处理负数电流值，将其转换为有符号32位整数
         cur_int = int(_cur * 1000)
         # 确保电流值在32位有符号整数范围内
-        if cur_int < -2147483648:
-            cur_int = -2147483648
-        elif cur_int > 2147483647:
-            cur_int = 2147483647
+        if cur_int < -2^31:
+            cur_int = -2^31
+        elif cur_int > 2^31-1:
+            cur_int = 2^31-1
             
         data[0] = (off_delay_int >> 8) & 0xff
         data[1] = off_delay_int & 0xff
@@ -172,12 +172,6 @@ class VESC():
         id, data = self.can_handle.receive(timeout)
         if id is None:
             return None,None
-
-        # 只处理ID为40的消息，其他ID的消息忽略
-        # vesc_id = id & 0xff
-        # if vesc_id != 40:
-        #     print(f"Ignoring message from VESC ID {vesc_id}, only accepting ID 40")
-        #     return None, None
 
         # print("RECV vesc id: {}, data: {}".format(id & 0xff, data))
         # self.can_packet.id = vesc_id
